@@ -2,10 +2,9 @@ import { connectToDb } from "@/lib/utils";
 import { Post } from "@/app/models/Post";
 import Link from "next/link";
 
-export default async function Home() {
+export default async function List() {
   await connectToDb();
 
-  // DB에서 모든 글 가져오기 (생성일 역순)
   const posts = await Post.find().sort({ createdAt: -1 });
 
   return (
