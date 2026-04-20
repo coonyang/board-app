@@ -1,11 +1,18 @@
 import { connectToDb } from "@/lib/utils";
 import { Post } from "@/app/models/Post";
 import Link from "next/link";
+import Pagination from "../components/Pagination";
 
-export default async function List() {
+export default async function List({ searchParams }) {
   await connectToDb();
 
-  const posts = await Post.find().sort({ createdAt: -1 });
+  const search = await searchParams;
+  const currentPage = Number(search?.page) || 1;
+  const perPage = 10;
+  const posts = await Post.find()
+    .sort({ createdAt: -1 })
+    .skip((currentPage - 1) * perPage)
+    .limit(perPage);
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,6 +48,11 @@ export default async function List() {
           ))
         )}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        perPage={perPage}
+        postCount={posts.length}
+      />
     </div>
   );
 }
