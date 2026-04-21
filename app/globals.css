@@ -1,21 +1,5 @@
 @import "tailwindcss";
 
 body {
-  margin: 8px !important;
-}
-
-.navbar {
-  width: 100%;
-  background-color: white;
-  border-bottom: 2px solid black;
-  padding: 15px 0px;
-  text-align: left;
-  display: flex;
-  align-items: baseline;
-  gap: 30px;
-}
-.navbarMenu {
-  color: black;
-  margin-left: 20px;
-  text-decoration: none;
+  margin: 15px !important;
 }

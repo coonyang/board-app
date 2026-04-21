@@ -15,14 +15,37 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="antialiased font-sans">
-        <div className="navbar">
-          <Link className="navbarMenu text-3xl font-bold" href={"/"}>
-            Home
-          </Link>
-          <Link className="navbarMenu text-lg font-medium" href={"/list"}>
-            List
-          </Link>
-        </div>
+        <nav className="flex justify-between items-center p-6 bg-white border-b">
+          <div className="flex items-center gap-8">
+            <Link
+              className="text-3xl font-extrabold tracking-tighter"
+              href={"/"}
+            >
+              HOME
+            </Link>
+            <Link
+              className="text-lg font-medium hover:text-blue-600"
+              href={"/list"}
+            >
+              List
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link
+              className="text-sm font-medium text-gray-600 hover:text-black border border-gray-300 px-3 py-1.5 rounded-md"
+              href="/login"
+            >
+              로그인
+            </Link>
+            <Link
+              className="text-sm font-medium bg-black text-white px-3 py-1.5 rounded-md hover:bg-gray-800"
+              href="/register"
+            >
+              회원가입
+            </Link>
+          </div>
+        </nav>
         <main className="mx-auto min-h-screen p-4">{children}</main>
       </body>
     </html>
