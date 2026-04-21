@@ -21,7 +21,11 @@ export default function RegisterPage() {
           required
         />
 
-        <input name="nickname" placeholder="닉네임" />
+        <input
+          name="nickname"
+          className="border p-2 rounded"
+          placeholder="닉네임"
+        />
 
         <button type="submit" className="bg-black text-white p-2 rounded">
           가입

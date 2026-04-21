@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 import { connectToDb } from "@/lib/utils";
 import { User } from "../models/User";
 import { redirect } from "next/navigation";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
 export async function registerUser(formData: FormData) {
   const username = formData.get("username") as string;
@@ -28,5 +30,47 @@ export async function registerUser(formData: FormData) {
     nickname,
   });
 
+  redirect("/login");
+}
+
+export async function loginUser(formData: FormData) {
+  const username = formData.get("username") as string;
+  const password = formData.get("password") as string;
+
+  if (!username || !password) return;
+
+  await connectToDb();
+
+  const user = await User.findOne({ username });
+  if (!user) {
+    throw new Error("존재하지 않는 아이디입니다.");
+  }
+
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+  if (!isPasswordMatch) {
+    throw new Error("비밀번호가 일치하지 않습니다.");
+  }
+
+  // console.log(`${user.nickname}님 로그인 성공!`);
+  const token = jwt.sign(
+    { userId: user._id.toString() },
+    process.env.JWT_SECRET!,
+    { expiresIn: "7d" },
+  );
+
+  const cookieStore = await cookies();
+
+  cookieStore.set("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
+
+  redirect("/");
+}
+export async function logoutUser() {
+  const cookieStore = await cookies();
+  cookieStore.delete("token");
   redirect("/login");
 }
