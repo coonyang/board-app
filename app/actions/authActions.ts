@@ -56,6 +56,7 @@ export async function loginUser(formData: FormData) {
     {
       userId: user._id.toString(),
       nickname: user.nickname,
+      role: user.role,
     },
     process.env.JWT_SECRET!,
     { expiresIn: "7d" },

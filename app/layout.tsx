@@ -21,6 +21,7 @@ export default async function RootLayout({
   type JwtUser = {
     userId: string;
     nickname: string;
+    role: string;
   };
 
   let user: JwtUser | null = null;

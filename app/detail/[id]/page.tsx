@@ -33,6 +33,7 @@ export default async function DetailPage({
       user = jwt.verify(token, process.env.JWT_SECRET!) as {
         userId: string;
         nickname: string;
+        role: string;
       };
     } catch {
       user = null;
@@ -47,10 +48,10 @@ export default async function DetailPage({
       >
         ← 목록으로 돌아가기
       </Link>
-      <h1 className="text-3xl font-bold">{post.title}</h1>
+      <h1 className="text-3xl font-bold mb-3">{post.title}</h1>
       <div className="flex justify-between items-center text-gray-500">
         <p className="text-sm">{post.createdAt.toLocaleString()}</p>
-        {user?.userId === post.authorId && (
+        {(user?.userId === post.authorId || user?.role === "admin") && (
           <div className="flex gap-4 items-center">
             <Link
               href={`/edit/${id}`}

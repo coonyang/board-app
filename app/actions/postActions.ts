@@ -59,6 +59,7 @@ export async function updatePost(id: string, formData: FormData) {
   const user = jwt.verify(token, process.env.JWT_SECRET!) as {
     userId: string;
     nickname: string;
+    role: string;
   };
 
   const post = await Post.findById(id);
@@ -90,6 +91,7 @@ export async function deletePost(id: string) {
   const user = jwt.verify(token, process.env.JWT_SECRET!) as {
     userId: string;
     nickname: string;
+    role: string;
   };
 
   const post = await Post.findById(id);
@@ -98,8 +100,8 @@ export async function deletePost(id: string) {
     throw new Error("게시글 없음");
   }
 
-  if (post.authorId !== user.userId) {
-    throw new Error("삭제 권한 없음");
+  if (post.authorId !== user.userId && user.role !== "admin") {
+    throw new Error("권한 없음");
   }
 
   await Post.findByIdAndDelete(id);
