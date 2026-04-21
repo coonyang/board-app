@@ -41,6 +41,12 @@ export default async function DetailPage({
 
   return (
     <div className="p-8">
+      <Link
+        href="/list"
+        className="inline-block mb-4 text-sm font-medium text-gray-600 hover:text-black"
+      >
+        ← 목록으로 돌아가기
+      </Link>
       <h1 className="text-3xl font-bold">{post.title}</h1>
       <div className="flex justify-between items-center text-gray-500">
         <p className="text-sm">{post.createdAt.toLocaleString()}</p>
