@@ -53,7 +53,10 @@ export async function loginUser(formData: FormData) {
 
   // console.log(`${user.nickname}님 로그인 성공!`);
   const token = jwt.sign(
-    { userId: user._id.toString() },
+    {
+      userId: user._id.toString(),
+      nickname: user.nickname,
+    },
     process.env.JWT_SECRET!,
     { expiresIn: "7d" },
   );
