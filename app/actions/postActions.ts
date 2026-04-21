@@ -14,7 +14,7 @@ export async function createPost(formData: FormData) {
   const token = cookieStore.get("token")?.value;
 
   if (!token) {
-    throw new Error("로그인 필요");
+    redirect("/login?error=need-login");
   }
 
   let user;
@@ -25,10 +25,12 @@ export async function createPost(formData: FormData) {
       nickname: string;
     };
   } catch {
-    throw new Error("유효하지 않은 로그인");
+    redirect("/login?error=invalid-login2");
   }
 
-  if (!title || !content) return;
+  if (!title || !content) {
+    redirect("/write?error=need-input");
+  }
 
   await connectToDb();
 
@@ -43,7 +45,7 @@ export async function updatePost(id: string, formData: FormData) {
   const content = formData.get("content");
 
   if (!title || !content) {
-    throw new Error("입력 필요");
+    redirect(`/edit/${id}?error=need-input`);
   }
 
   await connectToDb();
@@ -53,7 +55,7 @@ export async function updatePost(id: string, formData: FormData) {
   const token = cookieStore.get("token")?.value;
 
   if (!token) {
-    throw new Error("로그인 필요");
+    redirect("/login?error=need-login");
   }
 
   const user = jwt.verify(token, process.env.JWT_SECRET!) as {
@@ -65,11 +67,11 @@ export async function updatePost(id: string, formData: FormData) {
   const post = await Post.findById(id);
 
   if (!post) {
-    throw new Error("게시글 없음");
+    redirect("/list?error=not-found");
   }
 
   if (post.authorId !== user.userId) {
-    throw new Error("수정 권한 없음");
+    redirect(`/detail/${id}?error=forbidden`);
   }
 
   await Post.findByIdAndUpdate(id, { title, content });
@@ -85,7 +87,7 @@ export async function deletePost(id: string) {
   const token = cookieStore.get("token")?.value;
 
   if (!token) {
-    throw new Error("로그인 필요");
+    redirect("/login?error=need-login");
   }
 
   const user = jwt.verify(token, process.env.JWT_SECRET!) as {
@@ -97,11 +99,11 @@ export async function deletePost(id: string) {
   const post = await Post.findById(id);
 
   if (!post) {
-    throw new Error("게시글 없음");
+    redirect("/list?error=not-found");
   }
 
   if (post.authorId !== user.userId && user.role !== "admin") {
-    throw new Error("권한 없음");
+    redirect(`/detail/${id}?error=forbidden`);
   }
 
   await Post.findByIdAndDelete(id);

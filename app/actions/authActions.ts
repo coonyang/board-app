@@ -19,7 +19,7 @@ export async function registerUser(formData: FormData) {
   const exists = await User.findOne({ username });
 
   if (exists) {
-    throw new Error("이미 존재하는 아이디");
+    redirect("/register?error=exists");
   }
 
   const hashed = await bcrypt.hash(password, 10);
@@ -37,18 +37,20 @@ export async function loginUser(formData: FormData) {
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
 
-  if (!username || !password) return;
+  if (!username || !password) {
+    redirect("/login?error=invalid-login");
+  }
 
   await connectToDb();
 
   const user = await User.findOne({ username });
   if (!user) {
-    throw new Error("존재하지 않는 아이디입니다.");
+    redirect("/login?error=not-found");
   }
 
   const isPasswordMatch = await bcrypt.compare(password, user.password);
   if (!isPasswordMatch) {
-    throw new Error("비밀번호가 일치하지 않습니다.");
+    redirect("/login?error=wrong-password");
   }
 
   // console.log(`${user.nickname}님 로그인 성공!`);

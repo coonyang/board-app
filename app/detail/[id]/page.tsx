@@ -4,18 +4,21 @@ import Link from "next/link";
 import { deletePost } from "../../actions/postActions";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import ErrorMessage from "../../components/ErrorMessage";
 
 export default async function DetailPage({
   params,
+  searchParams,
 }: {
   params: {
     id: string;
   };
+  searchParams: { error?: string };
 }) {
   await connectToDb();
 
-  const { id } = await params;
-
+  const { id } = params;
+  const { error } = searchParams;
   const post = await Post.findById(id);
 
   if (!post) {
@@ -42,6 +45,7 @@ export default async function DetailPage({
 
   return (
     <div className="p-8">
+      <ErrorMessage error={error} />
       <Link
         href="/list"
         className="inline-block mb-4 text-sm font-medium text-gray-600 hover:text-black"

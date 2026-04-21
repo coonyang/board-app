@@ -1,14 +1,20 @@
 import { loginUser } from "../actions/authActions";
 import Link from "next/link";
+import ErrorMessage from "../components/ErrorMessage";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   return (
     <div className="flex min-h-[80vh] items-center justify-center">
       <div className="p-8 max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-100">
         <h1 className="text-3xl font-bold mb-6 text-center tracking-tighter">
           로그인
         </h1>
-
+        <ErrorMessage error={error} />
         <form action={loginUser} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-600">아이디</label>

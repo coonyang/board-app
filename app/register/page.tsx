@@ -1,9 +1,16 @@
 import { registerUser } from "../actions/authActions";
+import ErrorMessage from "../components/ErrorMessage";
 
-export default function RegisterPage() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   return (
     <div className="p-8 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4">회원가입</h1>
+      <ErrorMessage error={error} />
 
       <form action={registerUser} className="flex flex-col gap-3">
         <input

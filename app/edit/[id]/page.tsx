@@ -1,17 +1,25 @@
 import { connectToDb } from "../../../lib/utils";
 import { Post } from "../../models/Post";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { updatePost } from "../../actions/postActions";
+import ErrorMessage from "../../components/ErrorMessage";
 
-export default async function EditPage({ params }) {
+export default async function EditPage({
+  params,
+  searchParams,
+}: {
+  params: {
+    id: string;
+  };
+  searchParams: { error?: string };
+}) {
   await connectToDb();
-  const { id } = await params;
+  const { id } = params;
   const post = await Post.findById(id);
-
+  const { error } = searchParams;
   return (
     <div className="p-8 max-w-2xl mx-auto">
+      <ErrorMessage error={error} />
       <h1 className="text-3xl font-bold mb-6">게시글 수정</h1>
 
       <form action={updatePost.bind(null, id)} className="flex flex-col gap-4">
