@@ -35,13 +35,19 @@ export default async function List({ searchParams }) {
           posts.map((post) => (
             <div
               key={post._id.toString()}
-              className="border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              className="relative border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
               <Link
                 href={`/detail/${post._id}`}
                 className="text-xl font-bold hover:underline"
               >
                 {post.title}
+              </Link>
+              <Link
+                href={`/edit/${post._id}`}
+                className="absolute top-4 right-4 text-sm text-gray-400 hover:text-blue-600 border border-gray-200 px-2 py-1 rounded"
+              >
+                수정
               </Link>
               <p className="text-gray-600 mt-2 line-clamp-2">{post.content}</p>
             </div>

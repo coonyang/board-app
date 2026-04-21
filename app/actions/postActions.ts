@@ -18,3 +18,12 @@ export async function createPost(formData: FormData) {
   revalidatePath("/list");
   redirect("/list");
 }
+
+export async function deletePost(id: string) {
+  await connectToDb();
+
+  await Post.findByIdAndDelete(id);
+
+  revalidatePath("/list");
+  redirect("/list");
+}
