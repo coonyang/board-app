@@ -2,39 +2,27 @@
 
 import { connectToDb } from "@/lib/utils";
 import { Post } from "../models/Post";
+import { Comment } from "../models/Comment";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import { Comment } from "../models/Comment";
+import { requireUser } from "@/lib/auth";
 
 export async function createPost(formData: FormData) {
+  const user = await requireUser();
+
   const title = formData.get("title");
   const content = formData.get("content");
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
 
-  if (!token) {
-    redirect("/login?error=need-login");
-  }
-
-  let user;
-
-  try {
-    user = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-      nickname: string;
-    };
-  } catch {
-    redirect("/login?error=invalid-login2");
-  }
-
-  if (!title || !content) {
+  if (
+    typeof title !== "string" ||
+    typeof content !== "string" ||
+    !title ||
+    !content
+  ) {
     redirect("/write?error=need-input");
   }
 
   await connectToDb();
-
   await Post.create({ title, content, authorId: user.userId });
 
   revalidatePath("/list");
@@ -42,29 +30,21 @@ export async function createPost(formData: FormData) {
 }
 
 export async function updatePost(id: string, formData: FormData) {
+  const user = await requireUser();
+
   const title = formData.get("title");
   const content = formData.get("content");
 
-  if (!title || !content) {
+  if (
+    typeof title !== "string" ||
+    typeof content !== "string" ||
+    !title ||
+    !content
+  ) {
     redirect(`/edit/${id}?error=need-input`);
   }
 
   await connectToDb();
-
-  const cookieStore = await cookies();
-
-  const token = cookieStore.get("token")?.value;
-
-  if (!token) {
-    redirect("/login?error=need-login");
-  }
-
-  const user = jwt.verify(token, process.env.JWT_SECRET!) as {
-    userId: string;
-    nickname: string;
-    role: string;
-  };
-
   const post = await Post.findById(id);
 
   if (!post) {
@@ -82,21 +62,9 @@ export async function updatePost(id: string, formData: FormData) {
 }
 
 export async function deletePost(id: string) {
+  const user = await requireUser();
+
   await connectToDb();
-
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  if (!token) {
-    redirect("/login?error=need-login");
-  }
-
-  const user = jwt.verify(token, process.env.JWT_SECRET!) as {
-    userId: string;
-    nickname: string;
-    role: string;
-  };
-
   const post = await Post.findById(id);
 
   if (!post) {
@@ -114,24 +82,12 @@ export async function deletePost(id: string) {
 }
 
 export async function createComment(postId: string, formData: FormData) {
+  const user = await requireUser();
   const content = formData.get("content");
 
-  if (!content) {
+  if (typeof content !== "string" || !content || content.trim() === "") {
     redirect(`/detail/${postId}?error=need-input`);
   }
-
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  if (!token) {
-    redirect(`/detail/${postId}?error=need-login`);
-  }
-
-  const user = jwt.verify(token, process.env.JWT_SECRET!) as unknown as {
-    userId: string;
-    nickname: string;
-    role?: string;
-  };
 
   await connectToDb();
 
@@ -141,5 +97,21 @@ export async function createComment(postId: string, formData: FormData) {
     nickname: user.nickname,
     content,
   });
+
+  revalidatePath(`/detail/${postId}`);
+}
+
+export async function deleteComment(commentId: string, postId: string) {
+  const user = await requireUser();
+  await connectToDb();
+
+  const comment = await Comment.findById(commentId);
+  if (!comment) return;
+
+  if (comment.authorId !== user.userId && user.role !== "admin") {
+    redirect(`/detail/${postId}?error=forbidden`);
+  }
+
+  await Comment.findByIdAndDelete(commentId);
   revalidatePath(`/detail/${postId}`);
 }

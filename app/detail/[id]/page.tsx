@@ -1,7 +1,11 @@
 import { connectToDb } from "../../../lib/utils";
 import { Post } from "../../models/Post";
 import Link from "next/link";
-import { deletePost, createComment } from "../../actions/postActions"; // 경로 확인
+import {
+  deletePost,
+  createComment,
+  deleteComment,
+} from "../../actions/postActions";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import ErrorMessage from "../../components/ErrorMessage";
@@ -95,10 +99,31 @@ export default async function DetailPage({
             <div key={comment._id.toString()} className="border-b pb-4">
               <div className="flex justify-between items-center mb-1">
                 <span className="font-bold text-sm">{comment.nickname}</span>
-                <span className="text-xs text-gray-400">
-                  {new Date(comment.createdAt).toLocaleString()}
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-xs text-gray-400">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </span>
+
+                  {(user?.userId === comment.authorId ||
+                    user?.role === "admin") && (
+                    <form
+                      action={deleteComment.bind(
+                        null,
+                        comment._id.toString(),
+                        id,
+                      )}
+                    >
+                      <button
+                        type="submit"
+                        className="text-xs text-red-400 hover:text-red-600 font-medium transition-colors"
+                      >
+                        삭제
+                      </button>
+                    </form>
+                  )}
+                </div>
               </div>
+
               <p className="text-gray-700">{comment.content}</p>
             </div>
           ))}
