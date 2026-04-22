@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { Comment } from "../models/Comment";
 
 export async function createPost(formData: FormData) {
   const title = formData.get("title");
@@ -110,4 +111,35 @@ export async function deletePost(id: string) {
 
   revalidatePath("/list");
   redirect("/list");
+}
+
+export async function createComment(postId: string, formData: FormData) {
+  const content = formData.get("content");
+
+  if (!content) {
+    redirect(`/detail/${postId}?error=need-input`);
+  }
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  if (!token) {
+    redirect(`/detail/${postId}?error=need-login`);
+  }
+
+  const user = jwt.verify(token, process.env.JWT_SECRET!) as unknown as {
+    userId: string;
+    nickname: string;
+    role?: string;
+  };
+
+  await connectToDb();
+
+  await Comment.create({
+    postId,
+    authorId: user.userId,
+    nickname: user.nickname,
+    content,
+  });
+  revalidatePath(`/detail/${postId}`);
 }
