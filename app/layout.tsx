@@ -4,6 +4,7 @@ import "./globals.css";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { logoutUser } from "./actions/authActions";
+import DarkMode from "./components/Darkmode";
 
 export const metadata: Metadata = {
   title: "나의 게시판 서비스",
@@ -17,6 +18,7 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
+  const theme = cookieStore.get("theme")?.value || "light";
 
   type JwtUser = {
     userId: string;
@@ -34,18 +36,18 @@ export default async function RootLayout({
     }
   }
   return (
-    <html lang="ko">
-      <body className="antialiased font-sans">
-        <nav className="flex justify-between items-center p-6 bg-white border-b">
+    <html lang="ko" className={theme} style={{ colorScheme: theme }}>
+      <body className="antialiased font-sans dark:text-white transition-colors duration-300">
+        <nav className="flex justify-between items-center p-6 border-b dark:!bg-slate-900 dark:!border-slate-800">
           <div className="flex items-center gap-8">
             <Link
-              className="text-3xl font-extrabold tracking-tighter"
+              className="text-3xl font-extrabold tracking-tighter dark:text-white"
               href={"/"}
             >
               HOME
             </Link>
             <Link
-              className="text-lg font-medium hover:text-blue-600"
+              className="text-lg font-medium dark:text-gray-300 dark:hover:text-blue-400"
               href={"/list"}
             >
               List
@@ -53,9 +55,10 @@ export default async function RootLayout({
           </div>
 
           <div className="flex items-center gap-4">
+            <DarkMode currentTheme={theme}></DarkMode>
             {user ? (
               <div className="flex items-center gap-4">
-                <span className="text-sm font-semibold text-gray-700">
+                <span className="text-sm font-semibold dark:text-white">
                   <span className="text-blue-600">{user.nickname}</span>님,
                   반가워요!
                 </span>

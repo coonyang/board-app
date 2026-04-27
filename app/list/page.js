@@ -20,7 +20,7 @@ export default async function List({ searchParams }) {
         <h1 className="text-2xl font-bold">게시판 목록</h1>
         <Link
           href="/write"
-          className="bg-black text-white px-4 py-2 rounded-md font-bold"
+          className="px-4 py-2 rounded-md font-bold hover:text-white hover:bg-gray-800"
         >
           글쓰기
         </Link>
@@ -28,7 +28,7 @@ export default async function List({ searchParams }) {
 
       <div className="grid gap-4">
         {posts.length === 0 ? (
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-white">
             등록된 글이 없습니다. 첫 글을 작성해보세요!
           </p>
         ) : (
@@ -43,7 +43,9 @@ export default async function List({ searchParams }) {
               >
                 {post.title}
               </Link>
-              <p className="text-gray-600 mt-2 line-clamp-2">{post.content}</p>
+              <p className=" mt-2 line-clamp-2 dark:text-white">
+                {post.content}
+              </p>
             </div>
           ))
         )}

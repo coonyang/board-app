@@ -23,8 +23,10 @@ export default function Pagination({ currentPage, perPage, postCount }) {
       )}
 
       <div className="flex items-center gap-2">
-        <span className="text-lg font-semibold text-black">{currentPage}</span>
-        <span className="text-gray-400">페이지</span>
+        <span className="text-lg font-semibold dark:text-white">
+          {currentPage}
+        </span>
+        <span className="dark:text-white">페이지</span>
       </div>
 
       {hasNext ? (
