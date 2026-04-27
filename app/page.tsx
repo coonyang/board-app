@@ -7,8 +7,8 @@ export default async function Home() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold">연결 확인 중...</h1>
-      <p>터미널에 '연결상태: 1'이 뜨는지 확인해보세요!</p>
+      <h1 className="text-3xl font-bold">환영합니다!!</h1>
+      <p>게시판 사이트 입니다.</p>
     </div>
   );
 }
