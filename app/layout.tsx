@@ -37,19 +37,16 @@ export default async function RootLayout({
   }
   return (
     <html lang="ko" className={theme} style={{ colorScheme: theme }}>
-      <body className="antialiased font-sans dark:text-white transition-colors duration-300">
-        <nav className="flex justify-between items-center p-6 border-b dark:!bg-slate-900 dark:!border-slate-800">
+      <body className="antialiased font-sans transition-colors duration-300">
+        <nav className="flex justify-between items-center p-6 border-b">
           <div className="flex items-center gap-8">
             <Link
-              className="text-3xl font-extrabold tracking-tighter dark:text-white"
+              className="text-3xl font-extrabold tracking-tighter"
               href={"/"}
             >
               HOME
             </Link>
-            <Link
-              className="text-lg font-medium dark:text-gray-300 dark:hover:text-blue-400"
-              href={"/list"}
-            >
+            <Link className="text-lg font-medium" href={"/list"}>
               List
             </Link>
           </div>
@@ -58,7 +55,7 @@ export default async function RootLayout({
             <DarkMode currentTheme={theme}></DarkMode>
             {user ? (
               <div className="flex items-center gap-4">
-                <span className="text-sm font-semibold dark:text-white">
+                <span className="text-sm font-semibold">
                   <span className="text-blue-600">{user.nickname}</span>님,
                   반가워요!
                 </span>

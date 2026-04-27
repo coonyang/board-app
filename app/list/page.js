@@ -28,7 +28,7 @@ export default async function List({ searchParams }) {
 
       <div className="grid gap-4">
         {posts.length === 0 ? (
-          <p className="text-gray-500 dark:text-white">
+          <p className="text-gray-500">
             등록된 글이 없습니다. 첫 글을 작성해보세요!
           </p>
         ) : (
@@ -43,9 +43,7 @@ export default async function List({ searchParams }) {
               >
                 {post.title}
               </Link>
-              <p className=" mt-2 line-clamp-2 dark:text-white">
-                {post.content}
-              </p>
+              <p className=" mt-2 line-clamp-2">{post.content}</p>
             </div>
           ))
         )}
