@@ -6,13 +6,15 @@ import { Comment } from "../models/Comment";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { put } from "@vercel/blob";
 
+export const runtime = "nodejs";
 export async function createPost(formData: FormData) {
   const user = await requireUser();
 
   const title = formData.get("title");
   const content = formData.get("content");
-
+  const file = formData.get("image") as File;
   if (
     typeof title !== "string" ||
     typeof content !== "string" ||
@@ -22,8 +24,18 @@ export async function createPost(formData: FormData) {
     redirect("/write?error=need-input");
   }
 
+  let imageUrl = "";
+
+  if (file && file.size > 0) {
+    const blob = await put(file.name, file, {
+      access: "public",
+    });
+
+    imageUrl = blob.url;
+  }
+
   await connectToDb();
-  await Post.create({ title, content, authorId: user.userId });
+  await Post.create({ title, content, authorId: user.userId, imageUrl });
 
   revalidatePath("/list");
   redirect("/list");

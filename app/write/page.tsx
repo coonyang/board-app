@@ -11,7 +11,11 @@ export default async function Write({
     <div className="p-8">
       <ErrorMessage error={error} />
       <h2 className="text-2xl font-bold mb-4">새 글 작성</h2>
-      <form action={createPost} className="flex flex-col gap-3">
+      <form
+        action={createPost}
+        className="flex flex-col gap-3"
+        encType="multipart/form-data"
+      >
         <input
           name="title"
           placeholder="제목을 입력해주세요"
@@ -24,6 +28,12 @@ export default async function Write({
           className="border p-2 rounded h-40"
           required
         ></textarea>
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          className="border p-2 rounded"
+        />
         <button
           type="submit"
           className="bg-blue-500 text-white p-2 rounded font-bold"
