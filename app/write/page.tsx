@@ -11,11 +11,7 @@ export default async function Write({
     <div className="p-8">
       <ErrorMessage error={error} />
       <h2 className="text-2xl font-bold mb-4">새 글 작성</h2>
-      <form
-        action={createPost}
-        className="flex flex-col gap-3"
-        encType="multipart/form-data"
-      >
+      <form action={createPost} className="flex flex-col gap-3">
         <input
           name="title"
           placeholder="제목을 입력해주세요"
