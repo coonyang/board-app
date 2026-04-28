@@ -6,7 +6,8 @@ import { Comment } from "../models/Comment";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
+import { randomUUID } from "crypto";
 
 export const runtime = "nodejs";
 export async function createPost(formData: FormData) {
@@ -27,7 +28,7 @@ export async function createPost(formData: FormData) {
   let imageUrl = "";
 
   if (file && file.size > 0) {
-    const blob = await put(file.name, file, {
+    const blob = await put(`${randomUUID()}-${file.name}`, file, {
       access: "public",
     });
 
@@ -85,6 +86,14 @@ export async function deletePost(id: string) {
 
   if (post.authorId !== user.userId && user.role !== "admin") {
     redirect(`/detail/${id}?error=forbidden`);
+  }
+
+  if (post.imageUrl) {
+    try {
+      await del(post.imageUrl);
+    } catch (err) {
+      console.error("Blob 삭제 실패:", err);
+    }
   }
 
   await Post.findByIdAndDelete(id);
