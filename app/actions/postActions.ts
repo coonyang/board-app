@@ -9,7 +9,6 @@ import { requireUser } from "@/lib/auth";
 import { put, del } from "@vercel/blob";
 import { randomUUID } from "crypto";
 
-export const runtime = "nodejs";
 export async function createPost(formData: FormData) {
   const user = await requireUser();
 
