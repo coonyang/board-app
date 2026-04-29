@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+배포 주소 : https://board-app-nu.vercel.app/
 
-## Getting Started
+개요 : 이전 프로젝트로 Oauth Session 방식 로그인 구현을 만들어봤으므로 jwt 토근방식 로그인 구현을 목표로 게시판 프로젝트를 구성해보았습니다.
 
-First, run the development server:
+# Board App
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+사용자가 회원가입을 하여 글을 작성하고, 수정/삭제하며, 댓글을 남길 수 있는 게시판 웹 애플리케이션입니다.
+게시글엔 다양한 사진도 첨부 가능합니다.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Problem
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+기존 단순 CRUD 게시판 구현에서 다음과 같은 문제가 있었습니다.
 
-## Learn More
+- 로그인 사용자만 글/댓글을 작성해야 하는 인증 처리 필요
+- 어떤 오류가 발생했을때 사용자를 위한 오류 안내판 필요
+- 댓글 및 게시글 관리 기능 부족 (삭제, 권한 관리 등)
+- 이미지 업로드를 위한 외부 서비스 필요
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Approach
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+이 문제들을 해결하기 위해 다음과 같은 방식으로 접근했습니다.
 
-## Deploy on Vercel
+- JWT 기반 인증 시스템 도입
+- Next.js의 Server Action과 API Route를 병행 사용
+- MongoDB를 활용한 데이터 관리
+- 상태 관리는 최소화하고 서버 중심 구조로 설계
+- 이미지 업로드는 Vercel Blob을 활용
+- 원하는 유저의 role을 admin으로 바꿔 관리자 권한 행사 가능
+- 사용자가 어떤 이유에서 오류가 떴는지 안내해주는 ErrorMessage 도입
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Action
+
+실제 구현한 기능은 다음과 같습니다.
+
+### 1. 인증 및 권한 관리
+- JWT 토큰을 쿠키에 저장하여 로그인 유지
+- 작성자만 게시글/댓글 수정 및 삭제 가능하도록 처리
+- 회원가입시 bcrypt로 비밀번호 암호화
+
+### 2. 게시글 기능
+- 게시글 작성 / 조회 / 수정 / 삭제 (CRUD)
+- 상세 페이지에서 게시글 내용 확인 가능
+
+### 3. 댓글 기능
+- 댓글 작성 및 삭제
+- 관리자 권한으로 모든 댓글 삭제 가능
+
+### 4. 이미지 업로드
+- Vercel Blob을 이용한 이미지 업로드 기능 구현
+
+### 5. 기타
+- 에러 처리 컴포넌트 분리
+- 재사용 가능한 컴포넌트 구조 설계
+- 다크모드
+
+---
+
+## Performance
+
+- 서버 중심 로직으로 데이터 일관성 문제 해결
+- JWT 인증을 통해 보안 강화
+- 유지보수하기 쉬운 구조로 개선
+
+### 개선 예정
+- 댓글 신고 기능 추가
+- UX 개선
+
+---
+
+## 사용한 기술 스택
+
+- Next.js
+- React
+- MongoDB
+- JWT
+- Tailwind CSS
+- Vercel Blob
+- js-cookie
