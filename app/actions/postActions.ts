@@ -6,15 +6,14 @@ import { Comment } from "../models/Comment";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { put, del } from "@vercel/blob";
-import { randomUUID } from "crypto";
+import { del } from "@vercel/blob";
 
 export async function createPost(formData: FormData) {
   const user = await requireUser();
 
   const title = formData.get("title");
   const content = formData.get("content");
-  const file = formData.get("image") as File;
+  const imageUrlsRaw = formData.get("imageUrls");
   if (
     typeof title !== "string" ||
     typeof content !== "string" ||
@@ -24,18 +23,10 @@ export async function createPost(formData: FormData) {
     redirect("/write?error=need-input");
   }
 
-  let imageUrl = "";
-
-  if (file && file.size > 0) {
-    const blob = await put(`${randomUUID()}-${file.name}`, file, {
-      access: "public",
-    });
-
-    imageUrl = blob.url;
-  }
+  const imageUrls = imageUrlsRaw ? JSON.parse(imageUrlsRaw as string) : [];
 
   await connectToDb();
-  await Post.create({ title, content, authorId: user.userId, imageUrl });
+  await Post.create({ title, content, authorId: user.userId, imageUrls });
 
   revalidatePath("/list");
   redirect("/list");
@@ -87,9 +78,9 @@ export async function deletePost(id: string) {
     redirect(`/detail/${id}?error=forbidden`);
   }
 
-  if (post.imageUrl) {
+  if (post.imageUrls && post.imageUrls.length > 0) {
     try {
-      await del(post.imageUrl);
+      await Promise.all(post.imageUrls.map((url: string) => del(url)));
     } catch (err) {
       console.error("Blob 삭제 실패:", err);
     }
