@@ -32,7 +32,7 @@ export default function WriteClient() {
 
     const imageUrls = await uploadImages(files);
 
-    await fetch("/api/post", {
+    const res = await fetch("/api/post", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,6 +44,10 @@ export default function WriteClient() {
       }),
     });
 
+    if (!res.ok) {
+      alert("제목과 내용을 입력해주세요");
+      return;
+    }
     window.location.href = "/list";
   };
 

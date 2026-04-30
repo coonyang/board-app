@@ -3,12 +3,17 @@ import jwt from "jsonwebtoken";
 import { isMyToken } from "@/lib/auth";
 import { connectToDb } from "@/lib/utils";
 import { Post } from "@/app/models/Post";
+
 export async function POST(req: Request) {
   const body = await req.json();
   const { title, content, imageUrls } = body;
 
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
+
+  if (!title || !content) {
+    return Response.json({ error: "need-input" }, { status: 400 });
+  }
 
   let user = null;
 
