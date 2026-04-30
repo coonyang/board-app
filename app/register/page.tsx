@@ -31,7 +31,7 @@ export default async function RegisterPage({
         <input
           name="nickname"
           className="border p-2 rounded"
-          placeholder="닉네임"
+          placeholder="닉네임(빈칸이면 아이디가 닉네임이 됩니다)"
         />
 
         <button type="submit" className="bg-black text-white p-2 rounded">
