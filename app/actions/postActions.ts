@@ -85,7 +85,7 @@ export async function deletePost(id: string) {
       console.error("Blob 삭제 실패:", err);
     }
   }
-
+  await Comment.deleteMany({ postId: id });
   await Post.findByIdAndDelete(id);
 
   revalidatePath("/list");
