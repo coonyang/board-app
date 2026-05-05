@@ -1,13 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
 export default function Banner() {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+
   return (
-    <div className="w-full h-80 bg-gray-100 rounded-xl overflow-hidden mb-8  min-w-[650px]">
+    <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden mb-8  min-w-[650px]">
       <Swiper
         modules={[Autoplay, Pagination]}
         autoplay={{ delay: 3000 }}
@@ -32,10 +36,6 @@ export default function Banner() {
               <br className="hidden md:block" />
               더욱 편리한 커뮤니티 활동이 가능해졌습니다.
             </p>
-
-            <button className="mt-8 px-5 py-2 bg-white text-blue-600 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-50 transition-all">
-              자세히 알아보기
-            </button>
           </div>
         </SwiperSlide>
         <SwiperSlide className="relative flex flex-col justify-center px-12 bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-xl overflow-hidden min-h-[256px]">
@@ -57,12 +57,42 @@ export default function Banner() {
               모두가 즐거운 커뮤니티를 위해 기본 규칙을 지켜주세요
             </p>
 
-            <button className="mt-8 px-5 py-2 bg-white text-purple-600 rounded-lg text-sm font-bold shadow-md hover:bg-purple-50 transition-all">
+            <button
+              onClick={() => {
+                setMessage(
+                  "📌 게시판 이용 수칙\n\n- 욕설 금지\n- 광고 금지\n- 서로 존중하기",
+                );
+                setOpen(true);
+              }}
+              className="mt-8 px-5 py-2 bg-white text-purple-600 rounded-lg text-sm font-bold shadow-md hover:bg-purple-50 transition-all"
+            >
               자세히 보기
             </button>
           </div>
         </SwiperSlide>
       </Swiper>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="bg-white p-6 rounded-xl max-w-md w-full shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold mb-4">안내</h2>
+
+            <p className="text-gray-700 whitespace-pre-line">{message}</p>
+
+            <button
+              onClick={() => setOpen(false)}
+              className="mt-5 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
