@@ -48,7 +48,7 @@ export default async function DetailPage({
   }
 
   const createCommentWithId = createComment.bind(null, id);
-  console.log("imageUrls:", post.imageUrls);
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <ErrorMessage error={error} />
@@ -86,22 +86,10 @@ export default async function DetailPage({
       </div>
 
       <div className="text-lg leading-relaxed mb-12 min-h-[200px]">
-        {post.imageUrls && post.imageUrls.length > 0 && (
-          <div className="mb-6 space-y-4">
-            {post.imageUrls?.length > 0 && (
-              <div className="mb-6 space-y-4">
-                {post.imageUrls.map((url: string, i: number) => (
-                  <img
-                    key={i}
-                    src={url}
-                    className="w-full max-h-[400px] object-cover rounded"
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-        {post.content}
+        <div
+          className="prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
       </div>
 
       <hr className="my-8" />

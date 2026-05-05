@@ -3,17 +3,26 @@ import { Post } from "@/app/models/Post";
 import Link from "next/link";
 import Pagination from "../components/Pagination";
 
-export default async function List({ searchParams }) {
+export default async function List({
+  searchParams,
+}: {
+  searchParams?: { page?: string };
+}) {
   await connectToDb();
 
-  const search = await searchParams;
-  const currentPage = Number(search?.page) || 1;
+  const currentPage = Number(searchParams?.page) || 1;
   const perPage = 10;
+
   const posts = await Post.find()
     .sort({ createdAt: -1 })
     .skip((currentPage - 1) * perPage)
     .limit(perPage);
-
+  const stripHtml = (html: string) => {
+    return html.replace(/<[^>]*>?/gm, "");
+  };
+  const hasImage = (html: string) => {
+    return html.includes("<img");
+  };
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -41,9 +50,12 @@ export default async function List({ searchParams }) {
                 href={`/detail/${post._id}`}
                 className="text-xl font-bold hover:underline"
               >
-                {post.title}
+                {post.title}{" "}
+                {hasImage(post.content) && (
+                  <span className="text-gray-400">🖼️</span>
+                )}
               </Link>
-              <p className=" mt-2 line-clamp-2">{post.content}</p>
+              <p className="mt-2 line-clamp-2">{stripHtml(post.content)}</p>
             </div>
           ))
         )}
