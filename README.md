@@ -85,3 +85,4 @@
 - Vercel Blob
 - js-cookie
 - tiptap
+- swiper
