@@ -5,7 +5,7 @@ const PostSchema = new mongoose.Schema(
     authorId: String,
     title: String,
     content: String,
-    imageUrls: [String],
+    views: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

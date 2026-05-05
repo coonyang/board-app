@@ -10,7 +10,7 @@ export default async function List({
 }) {
   await connectToDb();
 
-  const currentPage = Number(searchParams?.page) || 1;
+  const currentPage = Number(searchParams?.page ?? 1);
   const perPage = 10;
 
   const posts = await Post.find()
@@ -56,6 +56,9 @@ export default async function List({
                 )}
               </Link>
               <p className="mt-2 line-clamp-2">{stripHtml(post.content)}</p>
+              <span className="text-xs text-gray-400">
+                조회 {post.views ?? 0}
+              </span>
             </div>
           ))
         )}
