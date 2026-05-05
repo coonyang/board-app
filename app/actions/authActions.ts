@@ -8,11 +8,35 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 export async function registerUser(formData: FormData) {
-  const username = formData.get("username") as string;
+  const username = (formData.get("username") as string).trim();
   const password = formData.get("password") as string;
-  const nickname = formData.get("nickname") as string;
+  const nickname = (formData.get("nickname") as string)?.trim() || username;
+  const valid = /^[a-zA-Z0-9가-힣]{2,}$/.test(username);
+  if (!valid) {
+    redirect("/register?error=invalid-username");
+  }
+
+  if (/[ㄱ-ㅎㅏ-ㅣ]/.test(username)) {
+    redirect("/register?error=invalid-username");
+  }
+
+  if (!/[a-zA-Z가-힣]/.test(username)) {
+    redirect("/register?error=invalid-username");
+  }
 
   if (!username || !password) return;
+
+  if (/\s/.test(password)) {
+    redirect("/register?error=invalid-password");
+  }
+
+  if (username.length < 2) {
+    redirect("/register?error=username-too-short");
+  }
+
+  if (password.length < 6) {
+    redirect("/register?error=password-too-short");
+  }
 
   await connectToDb();
 

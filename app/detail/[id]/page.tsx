@@ -86,14 +86,10 @@ export default async function DetailPage({
       </div>
 
       <div className="text-lg leading-relaxed mb-12 min-h-[200px]">
-        {post.imageUrl && (
-          <img
-            src={post.imageUrl}
-            alt="게시글 이미지"
-            className="w-full max-h-[400px] object-cover rounded mb-6"
-          />
-        )}
-        {post.content}
+        <div
+          className="prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
       </div>
 
       <hr className="my-8" />
