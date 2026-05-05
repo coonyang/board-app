@@ -12,6 +12,8 @@ import ErrorMessage from "../../components/ErrorMessage";
 import { isMyToken } from "@/lib/auth";
 import { Comment } from "../../models/Comment";
 
+export const dynamic = "force-dynamic";
+
 export default async function DetailPage({
   params,
   searchParams,
@@ -23,14 +25,17 @@ export default async function DetailPage({
   const { error } = await searchParams;
 
   await connectToDb();
+  await Post.updateOne({ _id: id }, { $inc: { views: 1 } });
+
   const post = await Post.findById(id);
-  const comments = await Comment.find({ postId: id }).sort({ createdAt: -1 });
 
   if (!post) {
     return (
       <div className="p-8 text-center">해당 게시글을 찾을 수 없습니다.</div>
     );
   }
+
+  const comments = await Comment.find({ postId: id }).sort({ createdAt: -1 });
 
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;

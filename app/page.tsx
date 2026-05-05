@@ -2,46 +2,37 @@ import "./globals.css";
 
 import { connectToDb } from "@/lib/utils";
 import Banner from "./components/Banner";
+import { Post } from "./models/Post";
 
 export default async function Home() {
   await connectToDb();
+
+  const popularPosts = await Post.find().sort({ views: -1 }).limit(5);
 
   return (
     <div className="p-8 space-y-8">
       <Banner />
 
-      {/* 헤더 영역 */}
-      <div>
-        <h1 className="text-3xl font-bold">환영합니다!!</h1>
-        <p className="text-gray-600 mt-1">게시판 사이트 입니다.</p>
-      </div>
+      <div className="p-4 space-y-6">
+        <h2 className="text-xl font-bold">🔥 인기 게시글</h2>
 
-      {/* 인기 게시글 */}
-      <section className="mt-6">
-        <div className="flex items-end justify-between mb-4">
-          <h2 className="text-xl font-bold">🔥 인기 게시글</h2>
-          <span className="text-sm text-gray-400 cursor-pointer hover:text-gray-600">
-            더보기 →
-          </span>
-        </div>
-
-        <div className="grid gap-3">
-          {/* 임시 데이터 (나중에 DB로 교체) */}
-          {[
-            { title: "Next.js 15 정리", views: 120 },
-            { title: "React 상태관리 비교", views: 98 },
-            { title: "게시판 UI 개선 후기", views: 76 },
-          ].map((post, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer"
+        <div className="space-y-3">
+          {popularPosts.map((post: any) => (
+            <a
+              key={post._id}
+              href={`/detail/${post._id}`}
+              className="block p-4 border border-gray-200 rounded-xl bg-white hover:shadow-md hover:border-gray-300 transition"
             >
-              <span className="font-medium">{post.title}</span>
-              <span className="text-sm text-gray-400">조회 {post.views}</span>
-            </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{post.title}</span>
+                <span className="text-sm text-gray-400">
+                  조회 {post.views ?? 0}
+                </span>
+              </div>
+            </a>
           ))}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
