@@ -21,7 +21,7 @@ export default async function Home() {
             <a
               key={post._id}
               href={`/detail/${post._id}`}
-              className="block p-4 border border-gray-200 rounded-xl bg-white hover:shadow-md hover:border-gray-300 transition"
+              className="block p-4 border rounded-xl hover:shadow-md hover:border-gray-300 transition"
             >
               <div className="flex justify-between items-center">
                 <span className="font-medium">{post.title}</span>
