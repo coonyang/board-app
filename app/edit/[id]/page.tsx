@@ -8,15 +8,15 @@ export default async function EditPage({
   params,
   searchParams,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  searchParams: { error?: string };
+  }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   await connectToDb();
-  const { id } = params;
+  const { id } = await params;
   const post = await Post.findById(id);
-  const { error } = searchParams;
+  const { error } = await searchParams;
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <ErrorMessage error={error} />
