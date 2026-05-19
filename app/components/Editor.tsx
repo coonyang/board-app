@@ -4,7 +4,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { upload } from "@vercel/blob/client";
-
+import { useEffect } from "react";
 export default function Editor({
   content,
   setContent,
@@ -20,6 +20,12 @@ export default function Editor({
       setContent(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   const addImage = async (file: File) => {
     const blob = await upload(`${crypto.randomUUID()}-${file.name}`, file, {
