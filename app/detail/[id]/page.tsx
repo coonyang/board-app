@@ -5,12 +5,15 @@ import {
   deletePost,
   createComment,
   deleteComment,
+  likePost,
+  increaseView,
 } from "../../actions/postActions";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import ErrorMessage from "../../components/ErrorMessage";
 import { isMyToken } from "@/lib/auth";
 import { Comment } from "../../models/Comment";
+import ViewTracker from "@/app/components/ViewTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +28,6 @@ export default async function DetailPage({
   const { error } = await searchParams;
 
   await connectToDb();
-  await Post.updateOne({ _id: id }, { $inc: { views: 1 } });
 
   const post = await Post.findById(id);
 
@@ -54,8 +56,11 @@ export default async function DetailPage({
 
   const createCommentWithId = createComment.bind(null, id);
 
+  const isLiked = user ? post.likedBy?.includes(user.userId) : false;
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
+      <ViewTracker postId={id} />
       <ErrorMessage error={error} />
 
       <Link
@@ -70,18 +75,29 @@ export default async function DetailPage({
       <div className="flex justify-between items-center text-gray-400 mb-6 pb-4 border-b">
         <p className="text-sm">작성일: {post.createdAt.toLocaleString()}</p>
 
+        <form action={likePost.bind(null, post._id.toString())}>
+          <button
+            type="submit"
+            className={`text-sm transition-colors ${
+              isLiked ? "text-red-500" : "hover:text-red-500"
+            }`}
+          >
+            ❤️ {post.likes ?? 0}
+          </button>
+        </form>
         {(user?.userId === post.authorId || user?.role === "admin") && (
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
             <Link
               href={`/edit/${id}`}
-              className="text-sm font-semibold hover:text-blue-500 transition-colors"
+              className="flex items-center text-sm font-semibold hover:text-blue-500 transition-colors"
             >
               수정
             </Link>
+
             <form action={deletePost.bind(null, id)}>
               <button
                 type="submit"
-                className="text-sm font-semibold hover:text-red-500 transition-colors"
+                className="flex items-center text-sm font-semibold hover:text-red-500 transition-colors"
               >
                 삭제
               </button>
