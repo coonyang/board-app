@@ -7,15 +7,27 @@ const Editor = dynamic(() => import("./Editor"), {
   ssr: false,
 });
 
-export default function WriteClient() {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+export default function WriteClient({
+  initialTitle = "",
+  initialContent = "",
+  postId,
+}: {
+  initialTitle?: string;
+  initialContent?: string;
+  postId?: string;
+}) {
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch("/api/post", {
-      method: "POST",
+    const url = postId ? `/api/post/${postId}` : "/api/post";
+
+    const method = postId ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -30,7 +42,9 @@ export default function WriteClient() {
       return;
     }
 
-    window.location.href = "/list";
+    const data = await res.json();
+
+    window.location.href = postId ? `/detail/${postId}` : `/detail/${data._id}`;
   };
 
   return (
@@ -44,7 +58,9 @@ export default function WriteClient() {
 
       <Editor content={content} setContent={setContent} />
 
-      <button className="bg-blue-500 text-white p-2 rounded">발행하기</button>
+      <button className="bg-blue-500 text-white p-2 rounded">
+        {postId ? "수정 완료" : "발행하기"}
+      </button>
     </form>
   );
 }
