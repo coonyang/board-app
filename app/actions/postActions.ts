@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { del } from "@vercel/blob";
+import { cookies } from "next/headers";
 
 export async function createPost(formData: FormData) {
   const user = await requireUser();
@@ -124,5 +125,54 @@ export async function deleteComment(commentId: string, postId: string) {
   }
 
   await Comment.findByIdAndDelete(commentId);
+  revalidatePath(`/detail/${postId}`);
+}
+
+export async function increaseView(postId: string) {
+  await connectToDb();
+
+  const cookieStore = await cookies();
+
+  const viewed = cookieStore.get(`viewed-${postId}`);
+
+  if (viewed) return;
+
+  await Post.updateOne(
+    { _id: postId },
+    {
+      $inc: { views: 1 },
+    },
+  );
+
+  cookieStore.set(`viewed-${postId}`, "true", {
+    maxAge: 60 * 60,
+  });
+}
+
+export async function likePost(postId: string) {
+  const user = await requireUser();
+
+  await connectToDb();
+
+  const post = await Post.findById(postId);
+
+  if (!post) return;
+
+  const alreadyLiked = post.likedBy.includes(user.userId);
+
+  if (alreadyLiked) {
+    // 좋아요 취소
+    await Post.findByIdAndUpdate(postId, {
+      $inc: { likes: -1 },
+      $pull: { likedBy: user.userId },
+    });
+  } else {
+    // 좋아요 추가
+    await Post.findByIdAndUpdate(postId, {
+      $inc: { likes: 1 },
+      $push: { likedBy: user.userId },
+    });
+  }
+
   revalidatePath(`/detail/${postId}`);
 }
