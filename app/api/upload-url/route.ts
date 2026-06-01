@@ -1,4 +1,3 @@
-// app/api/upload-url/route.ts
 import { handleUpload } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
