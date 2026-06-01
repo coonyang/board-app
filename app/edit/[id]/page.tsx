@@ -1,7 +1,5 @@
 import { connectToDb } from "../../../lib/utils";
 import { Post } from "../../models/Post";
-import Link from "next/link";
-import { updatePost } from "../../actions/postActions";
 import ErrorMessage from "../../components/ErrorMessage";
 import WriteClient from "@/app/components/WriteClient";
 
