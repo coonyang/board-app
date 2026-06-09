@@ -1,14 +1,12 @@
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-
-import { isMyToken } from "@/lib/auth";
 import { connectToDb } from "@/lib/utils";
 import { Post } from "@/app/models/Post";
+import { requireUser } from "@/lib/auth";
 
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const user = await requireUser();
   const { id } = await params;
 
   const body = await req.json();
@@ -17,26 +15,6 @@ export async function PUT(
 
   if (!title || !content) {
     return Response.json({ error: "need-input" }, { status: 400 });
-  }
-
-  const cookieStore = await cookies();
-
-  const token = cookieStore.get("accessToken")?.value;
-
-  let user = null;
-
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-
-      if (isMyToken(decoded)) {
-        user = decoded;
-      }
-    } catch {}
-  }
-
-  if (!user) {
-    return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
   await connectToDb();
