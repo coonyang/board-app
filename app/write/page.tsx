@@ -10,7 +10,7 @@ export default async function Write({
   const error = searchParams?.error;
 
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get("accessToken")?.value;
 
   return (
     <div className="p-8">

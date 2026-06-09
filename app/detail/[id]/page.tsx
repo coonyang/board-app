@@ -40,7 +40,7 @@ export default async function DetailPage({
   const comments = await Comment.find({ postId: id }).sort({ createdAt: -1 });
 
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get("accessToken")?.value;
   let user = null;
 
   if (token) {

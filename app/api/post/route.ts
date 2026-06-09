@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const { title, content, imageUrls } = body;
 
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get("accessToken")?.value;
 
   if (!title || !content) {
     return Response.json({ error: "need-input" }, { status: 400 });
@@ -23,7 +23,9 @@ export async function POST(req: Request) {
       if (isMyToken(decoded)) {
         user = decoded;
       }
-    } catch {}
+    } catch (err) {
+      console.log("jwt verify error:", err);
+    }
   }
 
   if (!user) {

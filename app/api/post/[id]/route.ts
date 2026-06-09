@@ -21,7 +21,7 @@ export async function PUT(
 
   const cookieStore = await cookies();
 
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get("accessToken")?.value;
 
   let user = null;
 

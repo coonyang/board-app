@@ -103,13 +103,33 @@ export async function loginUser(formData: FormData) {
 
   const cookieStore = await cookies();
 
-  cookieStore.set("accessToken", accessToken);
-  cookieStore.set("refreshToken", refreshToken);
+  cookieStore.set("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+
+  cookieStore.set("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
 
   redirect("/");
 }
 export async function logoutUser() {
   const cookieStore = await cookies();
-  cookieStore.delete("token");
+
+  const refreshToken = cookieStore.get("refreshToken")?.value;
+
+  if (refreshToken) {
+    await connectToDb();
+
+    await User.findOneAndUpdate({ refreshToken }, { refreshToken: null });
+  }
+
+  cookieStore.delete("accessToken");
+  cookieStore.delete("refreshToken");
+
   redirect("/login");
 }

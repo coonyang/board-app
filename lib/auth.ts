@@ -34,7 +34,7 @@ export async function requireUser(): Promise<MyToken> {
     }
 
     throw new Error();
-  } catch {
+  } catch (error) {
     if (!refreshToken) {
       redirect("/login");
     }
