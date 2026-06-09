@@ -17,7 +17,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const accessToken = cookieStore.get("accessToken")?.value;
   const theme = cookieStore.get("theme")?.value || "light";
 
   type JwtUser = {
@@ -28,9 +28,9 @@ export default async function RootLayout({
 
   let user: JwtUser | null = null;
 
-  if (token) {
+  if (accessToken) {
     try {
-      user = jwt.verify(token, process.env.JWT_SECRET || "") as JwtUser;
+      user = jwt.verify(accessToken, process.env.JWT_SECRET || "") as JwtUser;
     } catch {
       user = null;
     }

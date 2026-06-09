@@ -78,29 +78,58 @@ export async function loginUser(formData: FormData) {
   }
 
   // console.log(`${user.nickname}님 로그인 성공!`);
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     {
       userId: user._id.toString(),
       nickname: user.nickname,
       role: user.role,
     },
     process.env.JWT_SECRET!,
-    { expiresIn: "7d" },
+    { expiresIn: "15m" },
   );
+
+  const refreshToken = jwt.sign(
+    {
+      userId: user._id.toString(),
+      nickname: user.nickname,
+      role: user.role,
+    },
+    process.env.REFRESH_SECRET!,
+    { expiresIn: "30d" },
+  );
+
+  user.refreshToken = refreshToken;
+  await user.save();
 
   const cookieStore = await cookies();
 
-  cookieStore.set("token", token, {
+  cookieStore.set("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    sameSite: "strict",
+  });
+
+  cookieStore.set("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
   });
 
   redirect("/");
 }
 export async function logoutUser() {
   const cookieStore = await cookies();
-  cookieStore.delete("token");
+
+  const refreshToken = cookieStore.get("refreshToken")?.value;
+
+  if (refreshToken) {
+    await connectToDb();
+
+    await User.findOneAndUpdate({ refreshToken }, { refreshToken: null });
+  }
+
+  cookieStore.delete("accessToken");
+  cookieStore.delete("refreshToken");
+
   redirect("/login");
 }
