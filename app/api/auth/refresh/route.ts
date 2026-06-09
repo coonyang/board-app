@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { User } from "@/app/models/User";
 import { connectToDb } from "@/lib/utils";
+import { isMyToken } from "@/lib/auth";
 
 export async function POST() {
   const cookieStore = await cookies();
@@ -12,9 +13,19 @@ export async function POST() {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  let decoded;
+
+  try {
+    decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET!);
+  } catch {
+    return Response.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   await connectToDb();
 
-  const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET!) as any;
+  if (!isMyToken(decoded)) {
+    return Response.json({ error: "unauthorized" }, { status: 401 });
+  }
 
   const user = await User.findById(decoded.userId);
 

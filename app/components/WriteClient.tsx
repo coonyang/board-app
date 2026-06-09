@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 const Editor = dynamic(() => import("./Editor"), {
   ssr: false,
@@ -26,7 +27,7 @@ export default function WriteClient({
 
     const method = postId ? "PUT" : "POST";
 
-    const res = await fetch(url, {
+    const res = await fetchWithAuth(url, {
       method,
       headers: {
         "Content-Type": "application/json",
