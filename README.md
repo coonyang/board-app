@@ -75,6 +75,11 @@
 - UX 개선
 
 ---
+### 업데이트
+- 로그인의 JWT 생성 및 토큰 쿠키 저장 방식에서 refreshToken과 accessToken을 생성하여 보안을 강화하였습니다.
+- 기존 흐름: 로그인 > jwt 토큰 쿠키에 저장 > 토큰을 읽어 유저 확인
+- 업데이트 후 흐름: 로그인 > accessToken(15분), refreshToken(30일) 발급 > 쿠키에 저장 > DB에 refreshToken 저장 > 요청이 오면 accessToken 검증 > 유저 확인 > 토큰이 없다면 refreshToken 쿠키/DB 비교 후 일치하면 새 accessToken발급 > 쿠키에 저장 > 정상 작동
+
 
 ## 사용한 기술 스택
 
