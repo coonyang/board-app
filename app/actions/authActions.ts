@@ -78,24 +78,33 @@ export async function loginUser(formData: FormData) {
   }
 
   // console.log(`${user.nickname}님 로그인 성공!`);
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     {
       userId: user._id.toString(),
       nickname: user.nickname,
       role: user.role,
     },
     process.env.JWT_SECRET!,
-    { expiresIn: "7d" },
+    { expiresIn: "15m" },
   );
+
+  const refreshToken = jwt.sign(
+    {
+      userId: user._id.toString(),
+      nickname: user.nickname,
+      role: user.role,
+    },
+    process.env.REFRESH_SECRET!,
+    { expiresIn: "30d" },
+  );
+
+  user.refreshToken = refreshToken;
+  await user.save();
 
   const cookieStore = await cookies();
 
-  cookieStore.set("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
+  cookieStore.set("accessToken", accessToken);
+  cookieStore.set("refreshToken", refreshToken);
 
   redirect("/");
 }
