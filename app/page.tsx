@@ -5,6 +5,7 @@ import Banner from "./components/Banner";
 import { Post } from "./models/Post";
 import { Types } from "mongoose";
 import { StatsCard } from "coonyang-library";
+import { User } from "./models/User";
 
 export type PostType = {
   _id: Types.ObjectId;
@@ -28,13 +29,14 @@ export default async function Home() {
   const latestPosts = await Post.find().sort({ createdAt: -1 }).limit(5);
 
   const postCount = await Post.countDocuments();
+  const userCount = await User.countDocuments();
 
   return (
     <div className="p-8 space-y-8">
       <Banner />
       <div className="grid grid-cols-2 gap-4">
         <StatsCard title="게시글" value={postCount} icon={<span>📄</span>} />
-        <StatsCard title="회원 수" value={53} icon={<span>👤</span>} />
+        <StatsCard title="회원 수" value={userCount} icon={<span>👤</span>} />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <section className="space-y-3">
