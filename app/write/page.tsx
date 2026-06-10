@@ -5,9 +5,10 @@ import { cookies } from "next/headers";
 export default async function Write({
   searchParams,
 }: {
-  searchParams?: { error?: string };
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const error = searchParams?.error;
+  const params = await searchParams;
+  const error = params.error;
 
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
