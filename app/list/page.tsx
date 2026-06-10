@@ -6,11 +6,12 @@ import Pagination from "../components/Pagination";
 export default async function List({
   searchParams,
 }: {
-  searchParams?: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
   await connectToDb();
 
-  const currentPage = Number(searchParams?.page ?? 1);
+  const params = await searchParams;
+  const currentPage = Number(params.page ?? 1);
   const perPage = 10;
 
   const posts = await Post.find()
