@@ -84,7 +84,7 @@
 
 ### 업데이트 1.0.2
 
-- Next.js 최신 버전에서 `searchParams`가 비동기 객체(Promise)로 변경된 점을 반영하여 페이지네이션 로직을 수정하였습니다. `await searchParams`를 적용해 게시판 목록의 페이지 이동이 정상적으로 동작하도록 개선하였습니다.
+- Next.js 최신 버전에서 searchParams가 비동기 객체(Promise)로 변경된 점을 반영하여 페이지네이션 로직을 수정하였습니다. await searchParams를 적용해 게시판 목록의 페이지 이동이 정상적으로 동작하도록 개선하였습니다.
 - 직접 개발한 npm 라이브러리 `coonyang-library`를 적용하여 게시판의 실시간 게시물 수와 회원 수를 표시하는 기능을 추가하였습니다.
 
 
