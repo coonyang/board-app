@@ -3,6 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { LayoutGrid, LogIn, LogOut, UserPlus } from "lucide-react";
 import { logoutUser } from "./actions/authActions";
 import DarkMode from "./components/Darkmode";
 
@@ -37,33 +38,42 @@ export default async function RootLayout({
   }
   return (
     <html lang="ko" className={theme} style={{ colorScheme: theme }}>
-      <body className="antialiased font-sans transition-colors duration-300">
-        <nav className="flex justify-between items-center p-6 border-b">
-          <div className="flex items-center gap-8">
+      <body className="bg-bg text-fg antialiased font-sans transition-colors duration-300">
+        <nav className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-border bg-surface/80 px-6 py-4 backdrop-blur">
+          <div className="flex items-center gap-6">
             <Link
-              className="text-3xl font-extrabold tracking-tighter"
+              className="flex items-center gap-2 text-lg font-extrabold tracking-tight text-fg"
               href={"/"}
             >
-              HOME
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-fg">
+                <LayoutGrid size={18} />
+              </span>
+              게시판
             </Link>
-            <Link className="text-lg font-medium" href={"/list"}>
-              List
+            <Link
+              className="text-sm font-medium text-muted transition-colors hover:text-fg"
+              href={"/list"}
+            >
+              목록
             </Link>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <DarkMode currentTheme={theme}></DarkMode>
             {user ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-semibold">
-                  <span className="text-blue-600">{user.nickname}</span>님,
-                  반가워요!
+              <div className="flex items-center gap-3">
+                <span className="hidden text-sm text-muted sm:inline">
+                  <span className="font-semibold text-fg">
+                    {user.nickname}
+                  </span>
+                  님, 반가워요!
                 </span>
                 <form action={logoutUser}>
                   <button
                     type="submit"
-                    className="text-sm font-medium text-red-500 hover:text-red-700 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:border-danger/40 hover:text-danger"
                   >
+                    <LogOut size={15} />
                     로그아웃
                   </button>
                 </form>
@@ -71,15 +81,17 @@ export default async function RootLayout({
             ) : (
               <>
                 <Link
-                  className="text-sm font-medium text-gray-600 hover:text-black border border-gray-300 px-3 py-1.5 rounded-md"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:text-fg"
                   href="/login"
                 >
+                  <LogIn size={15} />
                   로그인
                 </Link>
                 <Link
-                  className="text-sm font-medium bg-black text-white px-3 py-1.5 rounded-md hover:bg-gray-800"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover"
                   href="/register"
                 >
+                  <UserPlus size={15} />
                   회원가입
                 </Link>
               </>

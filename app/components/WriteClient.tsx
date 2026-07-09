@@ -54,12 +54,12 @@ export default function WriteClient({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="제목"
-        className="border p-2 rounded"
+        className="rounded-lg border border-border bg-bg p-3 text-fg outline-none transition-all placeholder:text-muted focus:ring-2 focus:ring-accent"
       />
 
       <Editor content={content} setContent={setContent} />
 
-      <button className="bg-blue-500 text-white p-2 rounded">
+      <button className="rounded-lg bg-accent p-3 font-bold text-accent-fg transition-colors hover:bg-accent-hover">
         {postId ? "수정 완료" : "발행하기"}
       </button>
     </form>

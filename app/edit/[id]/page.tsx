@@ -17,10 +17,10 @@ export default async function EditPage({
   const post = await Post.findById(id);
   const { error } = await searchParams;
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <div className="mx-auto max-w-2xl p-8">
       <ErrorMessage error={error} />
 
-      <h1 className="text-3xl font-bold mb-6">게시글 수정</h1>
+      <h1 className="mb-6 text-3xl font-bold text-fg">게시글 수정</h1>
 
       <WriteClient
         initialTitle={post.title}

@@ -40,12 +40,12 @@ export default function Editor({
 
   return (
     <>
-      <div className="border p-2 rounded">
-        <div className="prose max-w-none min-h-[200px] ">
+      <div className="rounded-lg border border-border bg-bg p-3">
+        <div className="prose prose-neutral dark:prose-invert min-h-[200px] max-w-none">
           <EditorContent editor={editor} />
         </div>
       </div>
-      <label className="cursor-pointer border p-2 rounded inline-block mb-2">
+      <label className="mb-2 inline-block cursor-pointer rounded-lg border border-border px-3 py-2 text-sm text-fg transition-colors hover:bg-surface-2">
         이미지 추가
         <input
           type="file"
