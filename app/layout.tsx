@@ -63,6 +63,12 @@ export default async function RootLayout({
             <DarkMode currentTheme={theme}></DarkMode>
             {user ? (
               <div className="flex items-center gap-3">
+                <Link
+                  href="/mypage"
+                  className="text-sm font-medium text-muted transition-colors hover:text-fg"
+                >
+                  마이페이지
+                </Link>
                 <span className="hidden text-sm text-muted sm:inline">
                   <span className="font-semibold text-fg">{user.nickname}</span>
                   님, 반가워요!
