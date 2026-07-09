@@ -71,6 +71,28 @@
 - 유지보수하기 쉬운 구조로 개선
 - 이미지를 게시글의 원하는 위치에 넣을수 있도록 설정
 
+## 프로젝트 구조 (요약)
+
+```
+app/
+  page.tsx              # 만남의 광장 (구 홈)
+  list/page.tsx          # 게시판 목록 (검색/정렬/카테고리)
+  detail/[id]/page.tsx    # 게시글 상세 (댓글/좋아요)
+  write/, edit/[id]/       # 글쓰기/수정
+  mypage/page.tsx         # 마이페이지
+  login/, register/        # 인증 페이지
+  components/plaza/        # 광장 클라이언트 컴포넌트
+  api/plaza/               # 광장 폴링 API (state/heartbeat/chat/leave)
+  api/post/, api/auth/      # 게시글/인증 API
+  actions/                 # 서버 액션 (인증, 게시글/댓글)
+  models/                  # Mongoose 스키마 (Post, Comment, User, PlazaPresence, PlazaMessage)
+lib/
+  auth.ts       # requireUser() 등 서버 인증 헬퍼
+  utils.ts      # connectToDb (서버 전용)
+  color.ts      # userIdToColor (클라이언트에서도 안전하게 쓰는 순수 함수)
+  fetchWithAuth.ts  # 401 시 accessToken 자동 재발급 후 재시도하는 클라이언트 fetch 래퍼
+```
+
 ### 개선 예정
 - 댓글 신고 기능 추가
 - UX 개선
@@ -99,3 +121,8 @@
 - js-cookie
 - tiptap
 - swiper
+- coonyang-library — 직접 만든 컴포넌트 라이브러리
+
+------------------------------------------
+## 만남의 광장 추가
+Vercel류 서버리스 배포에서도 그대로 돌아가게 하려고 웹소켓 대신 폴링을 선택했습니다. 커스텀 상시 구동 서버나 Pusher/Ably 같은 외부 실시간 서비스가 필요 없습니다. 대신 위치 갱신은 최대 0.4초, 다른 유저 위치 반영은 최대 1초 정도 지연이 있습니다.
