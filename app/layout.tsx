@@ -48,7 +48,7 @@ export default async function RootLayout({
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-fg">
                 <LayoutGrid size={18} />
               </span>
-              게시판
+              Cafe
             </Link>
             <Link
               className="flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-fg"
@@ -64,9 +64,7 @@ export default async function RootLayout({
             {user ? (
               <div className="flex items-center gap-3">
                 <span className="hidden text-sm text-muted sm:inline">
-                  <span className="font-semibold text-fg">
-                    {user.nickname}
-                  </span>
+                  <span className="font-semibold text-fg">{user.nickname}</span>
                   님, 반가워요!
                 </span>
                 <form action={logoutUser}>
