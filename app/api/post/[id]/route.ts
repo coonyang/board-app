@@ -11,7 +11,7 @@ export async function PUT(
 
   const body = await req.json();
 
-  const { title, content } = body;
+  const { title, content, category } = body;
 
   if (!title || !content) {
     return Response.json({ error: "need-input" }, { status: 400 });
@@ -32,6 +32,7 @@ export async function PUT(
   await Post.findByIdAndUpdate(id, {
     title,
     content,
+    category: category || post.category || "자유",
   });
 
   return Response.json({ ok: true });

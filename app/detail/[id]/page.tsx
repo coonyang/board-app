@@ -70,6 +70,9 @@ export default async function DetailPage({
         ← 목록으로 돌아가기
       </Link>
 
+      <span className="mb-2 inline-block rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+        {post.category ?? "자유"}
+      </span>
       <h1 className="text-4xl font-extrabold mb-4">{post.title}</h1>
 
       <div className="flex justify-between items-center text-gray-400 mb-6 pb-4 border-b">

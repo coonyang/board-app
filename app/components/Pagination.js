@@ -1,10 +1,18 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Pagination({ currentPage, perPage, postCount }) {
+export default function Pagination({
+  currentPage,
+  perPage,
+  totalCount,
+  buildHref,
+}) {
+  const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
   const hasPrev = currentPage > 1;
+  const hasNext = currentPage < totalPages;
 
-  const hasNext = postCount === perPage;
+  const hrefFor = (page) =>
+    buildHref ? buildHref({ page: String(page) }) : `/list?page=${page}`;
 
   const btnStyle =
     "inline-flex items-center gap-1 px-4 py-2 border border-border rounded-lg transition-colors text-sm font-medium";
@@ -15,7 +23,7 @@ export default function Pagination({ currentPage, perPage, postCount }) {
     <div className="mb-10 mt-16 flex w-full items-center justify-center gap-6">
       {hasPrev ? (
         <Link
-          href={`/list?page=${currentPage - 1}`}
+          href={hrefFor(currentPage - 1)}
           className={`${btnStyle} ${activeStyle}`}
         >
           <ChevronLeft size={16} />
@@ -30,12 +38,12 @@ export default function Pagination({ currentPage, perPage, postCount }) {
 
       <div className="flex items-center gap-1.5 text-sm text-muted">
         <span className="text-base font-semibold text-fg">{currentPage}</span>
-        <span>페이지</span>
+        <span>/ {totalPages} 페이지</span>
       </div>
 
       {hasNext ? (
         <Link
-          href={`/list?page=${currentPage + 1}`}
+          href={hrefFor(currentPage + 1)}
           className={`${btnStyle} ${activeStyle}`}
         >
           다음

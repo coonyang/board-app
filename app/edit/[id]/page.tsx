@@ -25,6 +25,7 @@ export default async function EditPage({
       <WriteClient
         initialTitle={post.title}
         initialContent={post.content}
+        initialCategory={post.category}
         postId={id}
       />
     </div>
