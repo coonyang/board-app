@@ -14,13 +14,13 @@ export default async function Write({
   const token = cookieStore.get("accessToken")?.value;
 
   return (
-    <div className="p-8">
+    <div className="mx-auto max-w-2xl p-8">
       {!token ? (
         <ErrorMessage error="need-login" />
       ) : (
         <>
           <ErrorMessage error={error} />
-          <h2 className="text-2xl font-bold mb-4">새 글 작성</h2>
+          <h2 className="mb-4 text-2xl font-bold text-fg">새 글 작성</h2>
           <WriteClient />
         </>
       )}

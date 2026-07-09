@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { title, content, imageUrls } = body;
+  const { title, content, category, imageUrls } = body;
   const user = await requireUser();
 
   if (!title || !content) {
@@ -16,6 +16,7 @@ export async function POST(req: Request) {
   const newPost = await Post.create({
     title,
     content,
+    category: category || "자유",
     imageUrls,
     authorId: user.userId,
   });

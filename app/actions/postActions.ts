@@ -14,6 +14,7 @@ export async function createPost(formData: FormData) {
 
   const title = formData.get("title");
   const content = formData.get("content");
+  const category = formData.get("category");
   const imageUrlsRaw = formData.get("imageUrls");
   if (
     typeof title !== "string" ||
@@ -27,7 +28,13 @@ export async function createPost(formData: FormData) {
   const imageUrls = imageUrlsRaw ? JSON.parse(imageUrlsRaw as string) : [];
 
   await connectToDb();
-  await Post.create({ title, content, authorId: user.userId, imageUrls });
+  await Post.create({
+    title,
+    content,
+    category: typeof category === "string" && category ? category : "자유",
+    authorId: user.userId,
+    imageUrls,
+  });
 
   revalidatePath("/list");
   redirect("/list");

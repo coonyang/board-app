@@ -1,41 +1,59 @@
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Pagination({ currentPage, perPage, postCount }) {
+export default function Pagination({
+  currentPage,
+  perPage,
+  totalCount,
+  buildHref,
+}) {
+  const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
   const hasPrev = currentPage > 1;
+  const hasNext = currentPage < totalPages;
 
-  const hasNext = postCount === perPage;
+  const hrefFor = (page) =>
+    buildHref ? buildHref({ page: String(page) }) : `/list?page=${page}`;
 
-  const btnStyle = "px-4 py-2 border rounded-md transition-colors";
-  const activeStyle = "hover:bg-gray-100";
-  const disabledStyle = "text-gray-300 cursor-not-allowed";
+  const btnStyle =
+    "inline-flex items-center gap-1 px-4 py-2 border border-border rounded-lg transition-colors text-sm font-medium";
+  const activeStyle = "text-fg hover:bg-surface-2";
+  const disabledStyle = "text-muted/50 cursor-not-allowed";
 
   return (
-    <div className="flex justify-center items-center gap-6 mt-16 mb-10 w-full">
+    <div className="mb-10 mt-16 flex w-full items-center justify-center gap-6">
       {hasPrev ? (
         <Link
-          href={`/list?page=${currentPage - 1}`}
+          href={hrefFor(currentPage - 1)}
           className={`${btnStyle} ${activeStyle}`}
         >
+          <ChevronLeft size={16} />
           이전
         </Link>
       ) : (
-        <span className={`${btnStyle} ${disabledStyle}`}>이전</span>
+        <span className={`${btnStyle} ${disabledStyle}`}>
+          <ChevronLeft size={16} />
+          이전
+        </span>
       )}
 
-      <div className="flex items-center gap-2">
-        <span className="text-lg">{currentPage}</span>
-        <span>페이지</span>
+      <div className="flex items-center gap-1.5 text-sm text-muted">
+        <span className="text-base font-semibold text-fg">{currentPage}</span>
+        <span>/ {totalPages} 페이지</span>
       </div>
 
       {hasNext ? (
         <Link
-          href={`/list?page=${currentPage + 1}`}
+          href={hrefFor(currentPage + 1)}
           className={`${btnStyle} ${activeStyle}`}
         >
           다음
+          <ChevronRight size={16} />
         </Link>
       ) : (
-        <span className={`${btnStyle} ${disabledStyle}`}>다음</span>
+        <span className={`${btnStyle} ${disabledStyle}`}>
+          다음
+          <ChevronRight size={16} />
+        </span>
       )}
     </div>
   );
