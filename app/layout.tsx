@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { LayoutGrid, LogIn, LogOut, UserPlus } from "lucide-react";
+import { LayoutGrid, ListIcon, LogIn, LogOut, UserPlus } from "lucide-react";
 import { logoutUser } from "./actions/authActions";
 import DarkMode from "./components/Darkmode";
 
@@ -51,9 +51,10 @@ export default async function RootLayout({
               게시판
             </Link>
             <Link
-              className="text-sm font-medium text-muted transition-colors hover:text-fg"
+              className="flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-fg"
               href={"/list"}
             >
+              <ListIcon size={15} />
               목록
             </Link>
           </div>
