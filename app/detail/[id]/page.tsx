@@ -6,10 +6,16 @@ import {
   createComment,
   deleteComment,
   likePost,
-  increaseView,
 } from "../../actions/postActions";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import {
+  ArrowLeft,
+  Heart,
+  MessageSquare,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import ErrorMessage from "../../components/ErrorMessage";
 import { isMyToken } from "@/lib/auth";
 import { Comment } from "../../models/Comment";
@@ -33,7 +39,9 @@ export default async function DetailPage({
 
   if (!post) {
     return (
-      <div className="p-8 text-center">해당 게시글을 찾을 수 없습니다.</div>
+      <div className="p-8 text-center text-muted">
+        해당 게시글을 찾을 수 없습니다.
+      </div>
     );
   }
 
@@ -59,75 +67,89 @@ export default async function DetailPage({
   const isLiked = user ? post.likedBy?.includes(user.userId) : false;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl p-4">
       <ViewTracker postId={id} />
       <ErrorMessage error={error} />
 
       <Link
         href="/list"
-        className="inline-block mb-4 text-sm text-gray-500 hover:text-black transition-colors"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-fg"
       >
-        ← 목록으로 돌아가기
+        <ArrowLeft size={15} />
+        목록으로 돌아가기
       </Link>
 
-      <span className="mb-2 inline-block rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
-        {post.category ?? "자유"}
-      </span>
-      <h1 className="text-4xl font-extrabold mb-4">{post.title}</h1>
+      <div className="rounded-2xl border border-border bg-surface p-8 shadow-sm">
+        <span className="mb-2 inline-block rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+          {post.category ?? "자유"}
+        </span>
+        <h1 className="mb-4 text-4xl font-extrabold text-fg">{post.title}</h1>
 
-      <div className="flex justify-between items-center text-gray-400 mb-6 pb-4 border-b">
-        <p className="text-sm">작성일: {post.createdAt.toLocaleString()}</p>
+        <div className="mb-6 flex items-center justify-between border-b border-border pb-4 text-muted">
+          <p className="text-sm">작성일: {post.createdAt.toLocaleString()}</p>
 
-        <form action={likePost.bind(null, post._id.toString())}>
-          <button
-            type="submit"
-            className={`text-sm transition-colors ${
-              isLiked ? "text-red-500" : "hover:text-red-500"
-            }`}
-          >
-            ❤️ {post.likes ?? 0}
-          </button>
-        </form>
-        {(user?.userId === post.authorId || user?.role === "admin") && (
           <div className="flex items-center gap-4">
-            <Link
-              href={`/edit/${id}`}
-              className="flex items-center text-sm font-semibold hover:text-blue-500 transition-colors"
-            >
-              수정
-            </Link>
-
-            <form action={deletePost.bind(null, id)}>
+            <form action={likePost.bind(null, post._id.toString())}>
               <button
                 type="submit"
-                className="flex items-center text-sm font-semibold hover:text-red-500 transition-colors"
+                className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                  isLiked ? "text-danger" : "hover:text-danger"
+                }`}
               >
-                삭제
+                <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
+                {post.likes ?? 0}
               </button>
             </form>
+            {(user?.userId === post.authorId || user?.role === "admin") && (
+              <div className="flex items-center gap-3">
+                <Link
+                  href={`/edit/${id}`}
+                  className="flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-accent"
+                >
+                  <Pencil size={15} />
+                  수정
+                </Link>
+
+                <form action={deletePost.bind(null, id)}>
+                  <button
+                    type="submit"
+                    className="flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-danger"
+                  >
+                    <Trash2 size={15} />
+                    삭제
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        <div className="mb-4 min-h-[200px] text-lg leading-relaxed">
+          <div
+            className="prose prose-neutral dark:prose-invert max-w-none"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+        </div>
       </div>
 
-      <div className="text-lg leading-relaxed mb-12 min-h-[200px]">
-        <div
-          className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-      </div>
-
-      <hr className="my-8" />
-
-      <section>
-        <div className="mt-8 space-y-4">
-          <h3 className="text-xl font-bold">댓글 ({comments.length})</h3>
+      <section className="mt-6 rounded-2xl border border-border bg-surface p-8 shadow-sm">
+        <div className="space-y-4">
+          <h3 className="flex items-center gap-2 text-xl font-bold text-fg">
+            <MessageSquare size={18} />
+            댓글 ({comments.length})
+          </h3>
 
           {comments.map((comment) => (
-            <div key={comment._id.toString()} className="border-b pb-4">
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-bold text-sm">{comment.nickname}</span>
+            <div
+              key={comment._id.toString()}
+              className="border-b border-border pb-4"
+            >
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-sm font-bold text-fg">
+                  {comment.nickname}
+                </span>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-muted">
                     {new Date(comment.createdAt).toLocaleString()}
                   </span>
 
@@ -142,8 +164,9 @@ export default async function DetailPage({
                     >
                       <button
                         type="submit"
-                        className="text-xs text-red-400 hover:text-red-600 font-medium transition-colors"
+                        className="flex items-center gap-1 text-xs font-medium text-muted transition-colors hover:text-danger"
                       >
+                        <Trash2 size={12} />
                         삭제
                       </button>
                     </form>
@@ -151,19 +174,19 @@ export default async function DetailPage({
                 </div>
               </div>
 
-              <p className="text-gray-700">{comment.content}</p>
+              <p className="text-fg/90">{comment.content}</p>
             </div>
           ))}
 
           {comments.length === 0 && (
-            <p className="text-gray-400">등록된 댓글이 없습니다.</p>
+            <p className="text-muted">등록된 댓글이 없습니다.</p>
           )}
         </div>
-        <h3 className="text-xl font-bold mb-4 mt-4">댓글 작성</h3>
+        <h3 className="mb-4 mt-6 text-xl font-bold text-fg">댓글 작성</h3>
         <form action={createCommentWithId} className="flex flex-col gap-3">
           <textarea
             name="content"
-            className="w-full p-4 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full rounded-lg border border-border bg-bg p-4 text-fg outline-none placeholder:text-muted focus:ring-2 focus:ring-accent"
             placeholder={user ? "댓글을 입력하세요." : "로그인이 필요합니다."}
             rows={3}
             required
@@ -171,7 +194,7 @@ export default async function DetailPage({
           <div className="flex justify-end">
             <button
               type="submit"
-              className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+              className="rounded-lg bg-accent px-6 py-2 font-medium text-accent-fg transition-colors hover:bg-accent-hover"
             >
               댓글 등록
             </button>
