@@ -50,6 +50,7 @@ export default function PlazaClient({
 }) {
   const [pos, setPos] = useState({ x: 50, y: 55 });
   const [direction, setDirection] = useState<Direction>("down");
+  const [room, setRoom] = useState<number | null>(null);
   const [players, setPlayers] = useState<RemotePlayer[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [myMessage, setMyMessage] = useState<{
@@ -128,6 +129,23 @@ export default function PlazaClient({
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    fetchWithAuth("/api/plaza/join", { method: "POST" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setRoom(data.room ?? 1);
+      })
+      .catch(() => {
+        if (!cancelled) setRoom(1);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (room === null) return;
+
     const sendHeartbeat = () => {
       fetchWithAuth("/api/plaza/heartbeat", {
         method: "POST",
@@ -136,6 +154,7 @@ export default function PlazaClient({
           x: posRef.current.x,
           y: posRef.current.y,
           direction: dirRef.current,
+          room,
         }),
       }).catch(() => {});
     };
@@ -155,12 +174,14 @@ export default function PlazaClient({
       window.removeEventListener("pagehide", leave);
       leave();
     };
-  }, []);
+  }, [room]);
 
   useEffect(() => {
+    if (room === null) return;
+
     const poll = async () => {
       try {
-        const res = await fetchWithAuth("/api/plaza/state");
+        const res = await fetchWithAuth(`/api/plaza/state?room=${room}`);
         if (!res.ok) return;
         const data = await res.json();
         setPlayers(
@@ -175,7 +196,7 @@ export default function PlazaClient({
     poll();
     const interval = setInterval(poll, POLL_MS);
     return () => clearInterval(interval);
-  }, [userId]);
+  }, [room, userId]);
 
   useEffect(() => {
     if (chatLogRef.current) {
@@ -191,7 +212,7 @@ export default function PlazaClient({
 
   const sendChat = useCallback(async () => {
     const content = chatInput.trim();
-    if (!content) return;
+    if (!content || room === null) return;
 
     setChatInput("");
     setMyMessage({ text: content, at: Date.now() });
@@ -200,16 +221,32 @@ export default function PlazaClient({
       await fetchWithAuth("/api/plaza/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, room }),
       });
     } catch {
       // 전송 실패해도 로컬 말풍선은 유지
     }
-  }, [chatInput]);
+  }, [chatInput, room]);
+
+  if (room === null) {
+    return (
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
+        <h1 className="text-xl font-bold text-fg">만남의 광장</h1>
+        <div className="flex h-[65vh] min-h-[420px] items-center justify-center rounded-2xl border border-border bg-surface text-muted">
+          입장 중...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
-      <h1 className="text-xl font-bold text-fg">만남의 광장</h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-xl font-bold text-fg">만남의 광장</h1>
+        <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+          {room}번 방
+        </span>
+      </div>
 
       <div className="flex flex-col gap-4 md:flex-row">
         <div className="relative h-[65vh] min-h-[420px] flex-1 overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-surface to-surface-2 bg-[radial-gradient(circle,var(--border)_1px,transparent_1px)] bg-[length:28px_28px]">

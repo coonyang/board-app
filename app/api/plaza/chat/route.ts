@@ -9,6 +9,7 @@ export async function POST(req: Request) {
 
   const body = await req.json();
   const content = typeof body.content === "string" ? body.content.trim() : "";
+  const room = Number(body.room) || 1;
 
   if (!content) {
     return Response.json({ error: "need-input" }, { status: 400 });
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
   await Promise.all([
     PlazaMessage.create({
       userId: user.userId,
+      room,
       nickname: user.nickname,
       content,
     }),
@@ -32,6 +34,7 @@ export async function POST(req: Request) {
       { userId: user.userId },
       {
         userId: user.userId,
+        room,
         nickname: user.nickname,
         color: userIdToColor(user.userId),
         message: content,
