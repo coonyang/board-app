@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { userIdToColor } from "@/lib/color";
-import { Send } from "lucide-react";
+import { DoorOpen, Send } from "lucide-react";
 
 type Direction = "up" | "down" | "left" | "right";
 
@@ -50,6 +50,7 @@ export default function PlazaClient({
 }) {
   const [pos, setPos] = useState({ x: 50, y: 55 });
   const [direction, setDirection] = useState<Direction>("down");
+  const [room, setRoom] = useState<number | null>(null);
   const [players, setPlayers] = useState<RemotePlayer[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [myMessage, setMyMessage] = useState<{
@@ -57,6 +58,12 @@ export default function PlazaClient({
     at: number;
   } | null>(null);
   const [chatInput, setChatInput] = useState("");
+  const [showRoomList, setShowRoomList] = useState(false);
+  const [roomList, setRoomList] = useState<{ room: number; count: number }[]>(
+    [],
+  );
+  const [roomCapacity, setRoomCapacity] = useState(20);
+  const [switchError, setSwitchError] = useState<string | null>(null);
 
   const heldKeys = useRef<Set<Direction>>(new Set());
   const isTyping = useRef(false);
@@ -127,7 +134,58 @@ export default function PlazaClient({
     return () => clearInterval(tick);
   }, []);
 
+  const joinRoom = useCallback(async (targetRoom?: number) => {
+    try {
+      const res = await fetchWithAuth("/api/plaza/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(targetRoom ? { room: targetRoom } : {}),
+      });
+      if (!res.ok) {
+        if (res.status === 409) {
+          setSwitchError("그 방은 정원이 다 찼어요.");
+        }
+        return;
+      }
+      const data = await res.json();
+      setSwitchError(null);
+      setPlayers([]);
+      setMessages([]);
+      setShowRoomList(false);
+      setRoom(data.room ?? 1);
+    } catch {
+      // 방 배정 실패 시 다음 시도에서 재시도
+    }
+  }, []);
+
   useEffect(() => {
+    joinRoom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!showRoomList) return;
+
+    const fetchRooms = async () => {
+      try {
+        const res = await fetchWithAuth("/api/plaza/rooms");
+        if (!res.ok) return;
+        const data = await res.json();
+        setRoomList(data.rooms ?? []);
+        setRoomCapacity(data.capacity ?? 20);
+      } catch {
+        // 목록 갱신 실패는 다음 주기에 재시도
+      }
+    };
+
+    fetchRooms();
+    const interval = setInterval(fetchRooms, 3000);
+    return () => clearInterval(interval);
+  }, [showRoomList]);
+
+  useEffect(() => {
+    if (room === null) return;
+
     const sendHeartbeat = () => {
       fetchWithAuth("/api/plaza/heartbeat", {
         method: "POST",
@@ -136,6 +194,7 @@ export default function PlazaClient({
           x: posRef.current.x,
           y: posRef.current.y,
           direction: dirRef.current,
+          room,
         }),
       }).catch(() => {});
     };
@@ -155,12 +214,14 @@ export default function PlazaClient({
       window.removeEventListener("pagehide", leave);
       leave();
     };
-  }, []);
+  }, [room]);
 
   useEffect(() => {
+    if (room === null) return;
+
     const poll = async () => {
       try {
-        const res = await fetchWithAuth("/api/plaza/state");
+        const res = await fetchWithAuth(`/api/plaza/state?room=${room}`);
         if (!res.ok) return;
         const data = await res.json();
         setPlayers(
@@ -175,7 +236,7 @@ export default function PlazaClient({
     poll();
     const interval = setInterval(poll, POLL_MS);
     return () => clearInterval(interval);
-  }, [userId]);
+  }, [room, userId]);
 
   useEffect(() => {
     if (chatLogRef.current) {
@@ -191,7 +252,7 @@ export default function PlazaClient({
 
   const sendChat = useCallback(async () => {
     const content = chatInput.trim();
-    if (!content) return;
+    if (!content || room === null) return;
 
     setChatInput("");
     setMyMessage({ text: content, at: Date.now() });
@@ -200,16 +261,77 @@ export default function PlazaClient({
       await fetchWithAuth("/api/plaza/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, room }),
       });
     } catch {
       // 전송 실패해도 로컬 말풍선은 유지
     }
-  }, [chatInput]);
+  }, [chatInput, room]);
+
+  if (room === null) {
+    return (
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
+        <h1 className="text-xl font-bold text-fg">만남의 광장</h1>
+        <div className="flex h-[65vh] min-h-[420px] items-center justify-center rounded-2xl border border-border bg-surface text-muted">
+          입장 중...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4">
-      <h1 className="text-xl font-bold text-fg">만남의 광장</h1>
+      <div className="relative flex items-center gap-2">
+        <h1 className="text-xl font-bold text-fg">만남의 광장</h1>
+        <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+          {room}번 방
+        </span>
+        <button
+          onClick={() => setShowRoomList((v) => !v)}
+          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+        >
+          <DoorOpen size={15} />
+          다른 방 보기
+        </button>
+
+        {showRoomList && (
+          <div className="absolute left-0 top-full z-10 mt-2 w-64 rounded-xl border border-border bg-surface p-2 shadow-lg">
+            {switchError && (
+              <p className="mb-1 px-2 py-1 text-xs text-danger">
+                {switchError}
+              </p>
+            )}
+            <div className="flex max-h-64 flex-col gap-1 overflow-y-auto">
+              {roomList.map((r) => {
+                const isCurrent = r.room === room;
+                const isFull = r.count >= roomCapacity && !isCurrent;
+                return (
+                  <button
+                    key={r.room}
+                    onClick={() => !isCurrent && !isFull && joinRoom(r.room)}
+                    disabled={isCurrent || isFull}
+                    className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors ${
+                      isCurrent
+                        ? "bg-accent/10 font-semibold text-accent"
+                        : isFull
+                          ? "cursor-not-allowed text-muted/50"
+                          : "text-fg hover:bg-surface-2"
+                    }`}
+                  >
+                    <span>
+                      {r.room}번 방{isCurrent && " (현재)"}
+                    </span>
+                    <span>
+                      {r.count}/{roomCapacity}
+                      {isFull && " · 꽉 참"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="flex flex-col gap-4 md:flex-row">
         <div className="relative h-[65vh] min-h-[420px] flex-1 overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-surface to-surface-2 bg-[radial-gradient(circle,var(--border)_1px,transparent_1px)] bg-[length:28px_28px]">
