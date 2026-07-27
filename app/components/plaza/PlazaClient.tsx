@@ -10,6 +10,7 @@ type Direction = "up" | "down" | "left" | "right";
 type RemotePlayer = {
   userId: string;
   nickname: string;
+  level: number;
   x: number;
   y: number;
   direction: Direction;
@@ -44,9 +45,11 @@ const BUBBLE_MS = 5000;
 export default function PlazaClient({
   userId,
   nickname,
+  level,
 }: {
   userId: string;
   nickname: string;
+  level: number;
 }) {
   const [pos, setPos] = useState({ x: 50, y: 55 });
   const [direction, setDirection] = useState<Direction>("down");
@@ -348,6 +351,7 @@ export default function PlazaClient({
               x={p.x}
               y={p.y}
               color={p.color}
+              level={p.level}
               nickname={p.nickname}
               message={p.message}
               smooth
@@ -358,6 +362,7 @@ export default function PlazaClient({
             x={pos.x}
             y={pos.y}
             color={myColor}
+            level={level}
             nickname={`${nickname} (나)`}
             message={
               myMessage && Date.now() - myMessage.at < BUBBLE_MS
@@ -426,6 +431,7 @@ function Avatar({
   x,
   y,
   color,
+  level,
   nickname,
   message,
   highlight,
@@ -434,6 +440,7 @@ function Avatar({
   x: number;
   y: number;
   color: string;
+  level: number;
   nickname: string;
   message: string | null;
   highlight?: boolean;
@@ -452,12 +459,12 @@ function Avatar({
         </div>
       )}
       <div
-        className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white shadow-md ring-2 ${
+        className={`flex h-9 min-w-9 items-center justify-center rounded-full px-1.5 text-xs font-bold text-white shadow-md ring-2 ${
           highlight ? "ring-accent" : "ring-transparent"
         }`}
         style={{ backgroundColor: color }}
       >
-        {nickname.slice(0, 1)}
+        Lv.{level}
       </div>
       <span className="mt-1 rounded bg-surface/80 px-1.5 py-0.5 text-[10px] font-medium text-muted backdrop-blur">
         {nickname}

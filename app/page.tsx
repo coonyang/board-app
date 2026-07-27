@@ -4,18 +4,27 @@ import Link from "next/link";
 import { LogIn, UserPlus, Users } from "lucide-react";
 import PlazaClient from "./components/plaza/PlazaClient";
 import { isMyToken } from "@/lib/auth";
+import { connectToDb } from "@/lib/utils";
+import { User } from "./models/User";
 
 export default async function Home() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
-  let user: { userId: string; nickname: string } | null = null;
+  let user: { userId: string; nickname: string; level: number } | null =
+    null;
 
   if (accessToken) {
     try {
       const decoded = jwt.verify(accessToken, process.env.JWT_SECRET || "");
       if (isMyToken(decoded)) {
-        user = { userId: decoded.userId, nickname: decoded.nickname };
+        await connectToDb();
+        const profile = await User.findById(decoded.userId).select("level");
+        user = {
+          userId: decoded.userId,
+          nickname: decoded.nickname,
+          level: profile?.level ?? 1,
+        };
       }
     } catch {
       user = null;
@@ -54,5 +63,11 @@ export default async function Home() {
     );
   }
 
-  return <PlazaClient userId={user.userId} nickname={user.nickname} />;
+  return (
+    <PlazaClient
+      userId={user.userId}
+      nickname={user.nickname}
+      level={user.level}
+    />
+  );
 }

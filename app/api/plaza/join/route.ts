@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { ROOM_CAPACITY } from "@/lib/plazaConfig";
 import { isValidRoom } from "@/lib/plazaRoom";
 import { PlazaPresence } from "@/app/models/PlazaPresence";
+import { User } from "@/app/models/User";
 
 export async function POST(req: Request) {
   const user = await requireUser();
@@ -42,12 +43,15 @@ export async function POST(req: Request) {
     }
   }
 
+  const profile = await User.findById(user.userId).select("level");
+
   await PlazaPresence.findOneAndUpdate(
     { userId: user.userId },
     {
       userId: user.userId,
       room,
       nickname: user.nickname,
+      level: profile?.level ?? 1,
       color: userIdToColor(user.userId),
       updatedAt: new Date(),
     },
