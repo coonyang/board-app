@@ -4,13 +4,16 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { PostCard, WriteButton } from "coonyang-library";
 import Pagination from "../components/Pagination";
+import { POST_CATEGORIES } from "@/lib/postCategories";
 
-const CATEGORIES = ["자유", "질문", "정보", "잡담"];
 const SORTS: Record<string, Record<string, 1 | -1>> = {
   latest: { createdAt: -1 },
   popular: { likes: -1 },
   views: { views: -1 },
 };
+
+const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export default async function List({
   searchParams,
@@ -25,19 +28,24 @@ export default async function List({
   await connectToDb();
 
   const params = await searchParams;
-  const currentPage = Number(params.page ?? 1);
+  const parsedPage = Number(params.page ?? 1);
+  const currentPage =
+    Number.isFinite(parsedPage) && parsedPage >= 1 ? Math.floor(parsedPage) : 1;
   const perPage = 10;
   const q = params.q?.trim() ?? "";
   const sort = SORTS[params.sort ?? ""] ? params.sort! : "latest";
-  const category = CATEGORIES.includes(params.category ?? "")
+  const category = (POST_CATEGORIES as readonly string[]).includes(
+    params.category ?? "",
+  )
     ? params.category
     : undefined;
 
   const filter: Record<string, unknown> = {};
   if (q) {
+    const safeQ = escapeRegex(q);
     filter.$or = [
-      { title: { $regex: q, $options: "i" } },
-      { content: { $regex: q, $options: "i" } },
+      { title: { $regex: safeQ, $options: "i" } },
+      { content: { $regex: safeQ, $options: "i" } },
     ];
   }
   if (category) {
@@ -118,7 +126,7 @@ export default async function List({
         >
           전체
         </Link>
-        {CATEGORIES.map((c) => (
+        {POST_CATEGORIES.map((c) => (
           <Link
             key={c}
             href={buildHref({ category: c })}

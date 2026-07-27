@@ -2,13 +2,15 @@ import { connectToDb } from "@/lib/utils";
 import { userIdToColor } from "@/lib/color";
 import { requireUser } from "@/lib/auth";
 import { ROOM_CAPACITY } from "@/lib/plazaConfig";
+import { isValidRoom } from "@/lib/plazaRoom";
 import { PlazaPresence } from "@/app/models/PlazaPresence";
 
 export async function POST(req: Request) {
   const user = await requireUser();
 
   const body = await req.json().catch(() => ({}));
-  const requestedRoom = Number(body.room) || null;
+  const requestedRoomRaw = Number(body.room);
+  const requestedRoom = isValidRoom(requestedRoomRaw) ? requestedRoomRaw : null;
 
   await connectToDb();
 

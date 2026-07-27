@@ -99,6 +99,8 @@ export default function PlazaClient({
 
   useEffect(() => {
     const tick = setInterval(() => {
+      if (isTyping.current) return;
+
       const keys = heldKeys.current;
       if (keys.size === 0) return;
 
@@ -184,6 +186,20 @@ export default function PlazaClient({
   }, [showRoomList]);
 
   useEffect(() => {
+    const leave = () => {
+      fetch("/api/plaza/leave", { method: "POST", keepalive: true }).catch(
+        () => {},
+      );
+    };
+    window.addEventListener("pagehide", leave);
+
+    return () => {
+      window.removeEventListener("pagehide", leave);
+      leave();
+    };
+  }, []);
+
+  useEffect(() => {
     if (room === null) return;
 
     const sendHeartbeat = () => {
@@ -202,18 +218,7 @@ export default function PlazaClient({
     sendHeartbeat();
     const interval = setInterval(sendHeartbeat, HEARTBEAT_MS);
 
-    const leave = () => {
-      fetch("/api/plaza/leave", { method: "POST", keepalive: true }).catch(
-        () => {},
-      );
-    };
-    window.addEventListener("pagehide", leave);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("pagehide", leave);
-      leave();
-    };
+    return () => clearInterval(interval);
   }, [room]);
 
   useEffect(() => {

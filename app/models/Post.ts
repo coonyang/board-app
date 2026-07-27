@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { POST_CATEGORIES } from "@/lib/postCategories";
 
 const PostSchema = new mongoose.Schema(
   {
@@ -7,7 +8,7 @@ const PostSchema = new mongoose.Schema(
     content: String,
     category: {
       type: String,
-      enum: ["자유", "질문", "정보", "잡담"],
+      enum: POST_CATEGORIES,
       default: "자유",
     },
     views: { type: Number, default: 0 },

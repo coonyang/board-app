@@ -1,6 +1,7 @@
 import { connectToDb } from "@/lib/utils";
 import { Post } from "@/app/models/Post";
 import { requireUser } from "@/lib/auth";
+import { POST_CATEGORIES } from "@/lib/postCategories";
 
 export async function PUT(
   req: Request,
@@ -32,7 +33,9 @@ export async function PUT(
   await Post.findByIdAndUpdate(id, {
     title,
     content,
-    category: category || post.category || "자유",
+    category: POST_CATEGORIES.includes(category)
+      ? category
+      : post.category || "자유",
   });
 
   return Response.json({ ok: true });

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { FileText, Heart, MessageSquare } from "lucide-react";
 import { StatsCard, PostCard } from "coonyang-library";
 import { connectToDb } from "@/lib/utils";
@@ -36,6 +37,10 @@ export default async function MyPage({
       { $group: { _id: null, total: { $sum: "$likes" } } },
     ]),
   ]);
+
+  if (!profile) {
+    redirect("/login");
+  }
 
   const totalLikes = likesAgg[0]?.total ?? 0;
 

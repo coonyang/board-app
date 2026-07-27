@@ -1,6 +1,7 @@
 import { connectToDb } from "@/lib/utils";
 import { Post } from "@/app/models/Post";
 import { requireUser } from "@/lib/auth";
+import { POST_CATEGORIES } from "@/lib/postCategories";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
   const newPost = await Post.create({
     title,
     content,
-    category: category || "자유",
+    category: POST_CATEGORIES.includes(category) ? category : "자유",
     imageUrls,
     authorId: user.userId,
   });
