@@ -1,5 +1,6 @@
 import { connectToDb } from "../../../lib/utils";
 import { Post } from "../../models/Post";
+import { User } from "../../models/User";
 import Link from "next/link";
 import {
   deletePost,
@@ -20,6 +21,7 @@ import ErrorMessage from "../../components/ErrorMessage";
 import { isMyToken } from "@/lib/auth";
 import { Comment } from "../../models/Comment";
 import ViewTracker from "@/app/components/ViewTracker";
+import LevelBadge from "@/app/components/LevelBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +48,14 @@ export default async function DetailPage({
   }
 
   const comments = await Comment.find({ postId: id }).sort({ createdAt: -1 });
+
+  const commentAuthorIds = [...new Set(comments.map((c) => c.authorId))];
+  const commentAuthors = await User.find({
+    _id: { $in: commentAuthorIds },
+  }).select("level");
+  const commentAuthorLevels = new Map(
+    commentAuthors.map((a) => [a._id.toString(), a.level ?? 1]),
+  );
 
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
@@ -145,7 +155,10 @@ export default async function DetailPage({
               className="border-b border-border pb-4"
             >
               <div className="mb-1 flex items-center justify-between">
-                <span className="text-sm font-bold text-fg">
+                <span className="flex items-center text-sm font-bold text-fg">
+                  <LevelBadge
+                    level={commentAuthorLevels.get(comment.authorId) ?? 1}
+                  />
                   {comment.nickname}
                 </span>
                 <div className="flex flex-col items-end gap-1">

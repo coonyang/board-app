@@ -4,9 +4,11 @@ import { FileText, Heart, MessageSquare } from "lucide-react";
 import { StatsCard, PostCard } from "coonyang-library";
 import { connectToDb } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
+import { getLevelProgress } from "@/lib/levels";
 import { Post } from "@/app/models/Post";
 import { Comment } from "@/app/models/Comment";
 import { User } from "@/app/models/User";
+import LevelBadge from "@/app/components/LevelBadge";
 
 const TABS = [
   { key: "posts", label: "내가 쓴 글" },
@@ -43,6 +45,7 @@ export default async function MyPage({
   }
 
   const totalLikes = likesAgg[0]?.total ?? 0;
+  const progress = getLevelProgress(profile.exp ?? 0);
 
   let posts: any[] = [];
   let comments: any[] = [];
@@ -70,6 +73,7 @@ export default async function MyPage({
           </div>
           <div>
             <p className="text-lg font-bold text-fg">
+              <LevelBadge level={progress.level} bracket />
               {profile.nickname}
               {profile.role === "admin" && (
                 <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">
@@ -82,6 +86,37 @@ export default async function MyPage({
               가입
             </p>
           </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="mb-1 flex items-center justify-between text-xs text-muted">
+            <span>Lv.{progress.level}</span>
+            <span>
+              {progress.isMaxLevel
+                ? `MAX (${progress.exp} EXP)`
+                : `${progress.expIntoLevel} / ${progress.nextLevelThreshold! - progress.levelFloor} EXP`}
+            </span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-surface-2">
+            <div
+              className="h-full rounded-full bg-accent transition-all"
+              style={{
+                width: progress.isMaxLevel
+                  ? "100%"
+                  : `${Math.min(
+                      100,
+                      (progress.expIntoLevel /
+                        (progress.nextLevelThreshold! - progress.levelFloor)) *
+                        100,
+                    )}%`,
+              }}
+            />
+          </div>
+          {!progress.isMaxLevel && (
+            <p className="mt-1 text-xs text-muted">
+              다음 레벨까지 {progress.expNeededForNext} EXP
+            </p>
+          )}
         </div>
       </div>
 

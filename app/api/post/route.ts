@@ -2,6 +2,7 @@ import { connectToDb } from "@/lib/utils";
 import { Post } from "@/app/models/Post";
 import { requireUser } from "@/lib/auth";
 import { POST_CATEGORIES } from "@/lib/postCategories";
+import { grantExp } from "@/lib/grantExp";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -21,6 +22,8 @@ export async function POST(req: Request) {
     imageUrls,
     authorId: user.userId,
   });
+
+  await grantExp(user.userId, 10);
 
   return Response.json(newPost);
 }

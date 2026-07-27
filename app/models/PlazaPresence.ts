@@ -4,6 +4,7 @@ const PlazaPresenceSchema = new mongoose.Schema({
   userId: { type: String, required: true, unique: true },
   room: { type: Number, required: true, default: 1 },
   nickname: { type: String, required: true },
+  level: { type: Number, default: 1 },
   x: { type: Number, default: 50 },
   y: { type: Number, default: 50 },
   direction: {

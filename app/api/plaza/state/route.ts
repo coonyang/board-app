@@ -24,6 +24,7 @@ export async function GET(req: Request) {
     players: players.map((p) => ({
       userId: p.userId,
       nickname: p.nickname,
+      level: p.level ?? 1,
       x: p.x,
       y: p.y,
       direction: p.direction,
