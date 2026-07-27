@@ -12,6 +12,9 @@ const SORTS: Record<string, Record<string, 1 | -1>> = {
   views: { views: -1 },
 };
 
+const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export default async function List({
   searchParams,
 }: {
@@ -35,9 +38,10 @@ export default async function List({
 
   const filter: Record<string, unknown> = {};
   if (q) {
+    const safeQ = escapeRegex(q);
     filter.$or = [
-      { title: { $regex: q, $options: "i" } },
-      { content: { $regex: q, $options: "i" } },
+      { title: { $regex: safeQ, $options: "i" } },
+      { content: { $regex: safeQ, $options: "i" } },
     ];
   }
   if (category) {
