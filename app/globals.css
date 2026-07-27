@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
-@source "../node_modules/coonyang-library/dist/index.js";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
