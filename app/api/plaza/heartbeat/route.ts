@@ -9,7 +9,11 @@ const DIRECTIONS = ["up", "down", "left", "right"];
 export async function POST(req: Request) {
   const user = await requireUser();
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
+  if (!body) {
+    return Response.json({ error: "invalid-body" }, { status: 400 });
+  }
+
   const x = Number(body.x);
   const y = Number(body.y);
   const roomRaw = Number(body.room);
