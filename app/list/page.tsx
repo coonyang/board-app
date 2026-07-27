@@ -28,7 +28,9 @@ export default async function List({
   await connectToDb();
 
   const params = await searchParams;
-  const currentPage = Number(params.page ?? 1);
+  const parsedPage = Number(params.page ?? 1);
+  const currentPage =
+    Number.isFinite(parsedPage) && parsedPage >= 1 ? Math.floor(parsedPage) : 1;
   const perPage = 10;
   const q = params.q?.trim() ?? "";
   const sort = SORTS[params.sort ?? ""] ? params.sort! : "latest";
