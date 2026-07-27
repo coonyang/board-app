@@ -1,10 +1,12 @@
 import { connectToDb } from "@/lib/utils";
 import { Post } from "@/app/models/Post";
+import { User } from "@/app/models/User";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { PostCard, WriteButton } from "coonyang-library";
 import Pagination from "../components/Pagination";
 import { POST_CATEGORIES } from "@/lib/postCategories";
+import LevelBadge from "../components/LevelBadge";
 
 const SORTS: Record<string, Record<string, 1 | -1>> = {
   latest: { createdAt: -1 },
@@ -59,6 +61,21 @@ export default async function List({
       .limit(perPage),
     Post.countDocuments(filter),
   ]);
+
+  const authorIds = [...new Set(posts.map((post) => post.authorId))];
+  const [authors, authorPostCounts] = await Promise.all([
+    User.find({ _id: { $in: authorIds } }).select("nickname level"),
+    Post.aggregate([
+      { $match: { authorId: { $in: authorIds } } },
+      { $group: { _id: "$authorId", count: { $sum: 1 } } },
+    ]),
+  ]);
+  const authorMap = new Map(
+    authors.map((a) => [a._id.toString(), { nickname: a.nickname, level: a.level ?? 1 }]),
+  );
+  const postCountByAuthor = new Map(
+    authorPostCounts.map((a) => [a._id, a.count]),
+  );
 
   const stripHtml = (html: string) => html.replace(/<[^>]*>?/gm, "");
   const hasImage = (html: string) => html.includes("<img");
@@ -149,17 +166,30 @@ export default async function List({
               : "등록된 글이 없습니다. 첫 글을 작성해보세요!"}
           </p>
         ) : (
-          posts.map((post) => (
-            <Link key={post._id.toString()} href={`/detail/${post._id}`}>
-              <PostCard
-                title={post.title}
-                excerpt={stripHtml(post.content)}
-                category={post.category}
-                hasImage={hasImage(post.content)}
-                views={post.views ?? 0}
-              />
-            </Link>
-          ))
+          posts.map((post) => {
+            const author = authorMap.get(post.authorId);
+            const postCount = postCountByAuthor.get(post.authorId) ?? 0;
+            return (
+              <div key={post._id.toString()}>
+                <Link href={`/detail/${post._id}`}>
+                  <PostCard
+                    title={post.title}
+                    excerpt={stripHtml(post.content)}
+                    category={post.category}
+                    hasImage={hasImage(post.content)}
+                    views={post.views ?? 0}
+                  />
+                </Link>
+                {author && (
+                  <div className="mt-1.5 flex items-center px-1 text-xs text-muted">
+                    <LevelBadge level={author.level} />
+                    <span>{author.nickname}</span>
+                    <span className="ml-2">작성글 {postCount}개</span>
+                  </div>
+                )}
+              </div>
+            );
+          })
         )}
       </div>
       <Pagination

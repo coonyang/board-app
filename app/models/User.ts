@@ -13,6 +13,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    level: { type: Number, default: 1 },
+    exp: { type: Number, default: 0 },
+    dailyExpGained: { type: Number, default: 0 },
+    dailyExpDate: { type: String, default: null },
   },
   { timestamps: true },
 );

@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { del } from "@vercel/blob";
 import { cookies } from "next/headers";
+import { grantExp } from "@/lib/grantExp";
 
 export async function deletePost(id: string) {
   const user = await requireUser();
@@ -53,6 +54,8 @@ export async function createComment(postId: string, formData: FormData) {
     nickname: user.nickname,
     content,
   });
+
+  await grantExp(user.userId, 1);
 
   revalidatePath(`/detail/${postId}`);
 }
@@ -103,6 +106,7 @@ export async function likePost(postId: string) {
   if (!post) return;
 
   const alreadyLiked = post.likedBy.includes(user.userId);
+  const isSelfLike = post.authorId === user.userId;
 
   if (alreadyLiked) {
     // 좋아요 취소
@@ -110,12 +114,18 @@ export async function likePost(postId: string) {
       $inc: { likes: -1 },
       $pull: { likedBy: user.userId },
     });
+    if (!isSelfLike) {
+      await grantExp(post.authorId, -2);
+    }
   } else {
     // 좋아요 추가
     await Post.findByIdAndUpdate(postId, {
       $inc: { likes: 1 },
       $push: { likedBy: user.userId },
     });
+    if (!isSelfLike) {
+      await grantExp(post.authorId, 2);
+    }
   }
 
   revalidatePath(`/detail/${postId}`);
