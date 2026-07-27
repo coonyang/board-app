@@ -1,6 +1,7 @@
 import { connectToDb } from "@/lib/utils";
 import { userIdToColor } from "@/lib/color";
 import { requireUser } from "@/lib/auth";
+import { isValidRoom, roomHasCapacity } from "@/lib/plazaRoom";
 import { PlazaPresence } from "@/app/models/PlazaPresence";
 import { PlazaMessage } from "@/app/models/PlazaMessage";
 
@@ -9,7 +10,8 @@ export async function POST(req: Request) {
 
   const body = await req.json();
   const content = typeof body.content === "string" ? body.content.trim() : "";
-  const room = Number(body.room) || 1;
+  const roomRaw = Number(body.room);
+  const room = isValidRoom(roomRaw) ? roomRaw : 1;
 
   if (!content) {
     return Response.json({ error: "need-input" }, { status: 400 });
@@ -20,6 +22,11 @@ export async function POST(req: Request) {
   }
 
   await connectToDb();
+
+  const existing = await PlazaPresence.findOne({ userId: user.userId });
+  if (existing?.room !== room && !(await roomHasCapacity(room, user.userId))) {
+    return Response.json({ error: "room-full" }, { status: 409 });
+  }
 
   const now = new Date();
 
