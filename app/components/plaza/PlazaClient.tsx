@@ -99,6 +99,8 @@ export default function PlazaClient({
 
   useEffect(() => {
     const tick = setInterval(() => {
+      if (isTyping.current) return;
+
       const keys = heldKeys.current;
       if (keys.size === 0) return;
 
