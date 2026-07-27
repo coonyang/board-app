@@ -3,12 +3,11 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import { POST_CATEGORIES } from "@/lib/postCategories";
 
 const Editor = dynamic(() => import("./Editor"), {
   ssr: false,
 });
-
-const CATEGORIES = ["자유", "질문", "정보", "잡담"];
 
 export default function WriteClient({
   initialTitle = "",
@@ -61,7 +60,7 @@ export default function WriteClient({
         onChange={(e) => setCategory(e.target.value)}
         className="w-fit rounded-lg border border-border bg-bg p-2.5 text-sm text-fg outline-none transition-all focus:ring-2 focus:ring-accent"
       >
-        {CATEGORIES.map((c) => (
+        {POST_CATEGORIES.map((c) => (
           <option key={c} value={c}>
             {c}
           </option>

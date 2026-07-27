@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { PostCard, WriteButton } from "coonyang-library";
 import Pagination from "../components/Pagination";
+import { POST_CATEGORIES } from "@/lib/postCategories";
 
-const CATEGORIES = ["자유", "질문", "정보", "잡담"];
 const SORTS: Record<string, Record<string, 1 | -1>> = {
   latest: { createdAt: -1 },
   popular: { likes: -1 },
@@ -32,7 +32,9 @@ export default async function List({
   const perPage = 10;
   const q = params.q?.trim() ?? "";
   const sort = SORTS[params.sort ?? ""] ? params.sort! : "latest";
-  const category = CATEGORIES.includes(params.category ?? "")
+  const category = (POST_CATEGORIES as readonly string[]).includes(
+    params.category ?? "",
+  )
     ? params.category
     : undefined;
 
@@ -122,7 +124,7 @@ export default async function List({
         >
           전체
         </Link>
-        {CATEGORIES.map((c) => (
+        {POST_CATEGORIES.map((c) => (
           <Link
             key={c}
             href={buildHref({ category: c })}
